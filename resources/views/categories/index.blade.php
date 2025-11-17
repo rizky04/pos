@@ -113,6 +113,7 @@
 
 @push('scripts')
 <script>
+
     let pagination = {
         perPage: 8,
         currentPage: 1,
@@ -228,16 +229,39 @@
     /* =====================================================
      * MODAL ADD
      * ===================================================== */
+    // function openAddModal() {
+    //     $.get("{{ route('categories.generate.code') }}", function(res) {
+    //         console.log(res);
+    //         $("#kodeKategori").val(res.code);
+    //         $("#categoryModalTitle").text("Tambah Kategori");
+    //         $("#categoryForm")[0].reset();
+    //         $("#categoryId").val("");
+    //         $("#statusKategori").val("active");
+    //         categoryModal.show();
+    //     });
+    // }
     function openAddModal() {
-        $.get("{{ route('categories.generate.code') }}", function(res) {
-            $("#kodeKategori").val(res.code);
-            $("#categoryModalTitle").text("Tambah Kategori");
+    $.ajax({
+        url: "{{ route('categories.generate.code') }}",
+        type: "GET",
+        success: function(res) {
+            console.log("Generate Code:", res);
+
             $("#categoryForm")[0].reset();
             $("#categoryId").val("");
+            $("#kodeKategori").val(res.code);
             $("#statusKategori").val("active");
+
+            $("#categoryModalTitle").text("Tambah Kategori");
             categoryModal.show();
-        });
-    }
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+            alert("Gagal generate kode kategori!");
+        }
+    });
+}
+
 
 
     /* =====================================================
