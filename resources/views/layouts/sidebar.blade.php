@@ -35,6 +35,13 @@
                <i class="bi bi-tags"></i>
            </div>
        </a>
+       <!-- MASTER GUDANG ACTIVE -->
+       <a href="{{ route('warehouses.index') }}">
+           <div class="side-btn {{ request()->routeIs('warehouses.*') ? 'active' : '' }}" data-bs-toggle="tooltip"
+               data-bs-placement="right" title="Master Gudang">
+               <i class="bi bi-building"></i>
+           </div>
+       </a>
        <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Master Barang">
            <i class="bi bi-box-seam"></i>
        </div>

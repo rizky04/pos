@@ -22,6 +22,7 @@ use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\WarehouseController;
 
 // Redirect root URL to /home if logged in, or to login otherwise
 Route::get('/', function () {
@@ -75,7 +76,15 @@ Route::prefix('categories')->group(function () {
     Route::get('/generate/code', [CategoryController::class, 'generateCode'])->name('categories.generate.code');
 });
 
-
+Route::prefix('warehouses')->group(function () {
+    Route::get('/', [WarehouseController::class, 'index'])->name('warehouses.index');
+    Route::get('/data', [WarehouseController::class, 'getData'])->name('warehouses.data');
+    Route::post('/', [WarehouseController::class, 'store'])->name('warehouses.store');
+    Route::put('/{id}', [WarehouseController::class, 'update'])->name('warehouses.update');
+    Route::delete('/{id}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+    Route::get('/{id}', [WarehouseController::class, 'show'])->name('warehouses.show');
+    Route::get('/generate/code', [WarehouseController::class, 'generateCode'])->name('warehouses.generate.code');
+});
 
 
 
