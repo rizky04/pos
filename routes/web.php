@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,8 @@ use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UnitController;
 
 // Redirect root URL to /home if logged in, or to login otherwise
 Route::get('/', function () {
@@ -42,6 +45,37 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
+
+    Route::prefix('suppliers')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('suppliers.index');
+        Route::get('/data', [SupplierController::class, 'getData'])->name('suppliers.data');
+        Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
+        Route::put('/{id}', [SupplierController::class, 'update'])->name('suppliers.update');
+        Route::delete('/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+        Route::get('/{id}', [SupplierController::class, 'show'])->name('suppliers.show');
+    });
+
+Route::prefix('units')->group(function () {
+    Route::get('/', [UnitController::class, 'index'])->name('units.index');
+    Route::get('/data', [UnitController::class, 'getData'])->name('units.data');
+    Route::post('/', [UnitController::class, 'store'])->name('units.store');
+    Route::get('/{id}', [UnitController::class, 'show'])->name('units.show');
+    Route::put('/{id}', [UnitController::class, 'update'])->name('units.update');
+    Route::delete('/{id}', [UnitController::class, 'destroy'])->name('units.delete');
+});
+
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/data', [CategoryController::class, 'getData'])->name('categories.data');
+    Route::post('/', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/{id}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::get('/{id}', [CategoryController::class, 'show'])->name('categories.show');
+    Route::get('/generate/code', [CategoryController::class, 'generateCode'])->name('categories.generate.code');
+});
+
+
+
 
 
     Route::get('/select2/products', [Select2Controller::class, 'products'])->name('select2.products');

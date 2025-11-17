@@ -76,6 +76,8 @@ class RegisterController extends Controller
                 'password'  => Hash::make($request->password),
             ]);
 
+
+
             // Spatie Role
             $user->assignRole('Owner');
 

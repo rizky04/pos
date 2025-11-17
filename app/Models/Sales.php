@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class Sales extends Model
 {
     /** @use HasFactory<\Database\Factories\SalesFactory> */
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 protected $appends = ['total_paid', 'due_amount'];
     protected $fillable = [
         'id_client',

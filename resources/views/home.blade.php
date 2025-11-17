@@ -1,208 +1,306 @@
-@extends('layouts.main')
+@extends('layouts.apps')
 
 @section('content')
-<div class="page-header mb-4">
-    <h4>Dashboard Penjualan</h4>
-    <h6>Ringkasan aktivitas penjualan dan pembayaran</h6>
-</div>
+    <section>
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <div class="page-header-title">Dashboard</div>
+                <div class="page-header-sub">
+                    Selamat datang kembali! Pantau performa bisnis Anda hari ini.
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn-soft light" id="btnRefresh">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+                <button class="btn-soft" id="btnNewTransaction">
+                    <i class="bi bi-plus-circle"></i> Transaksi Baru
+                </button>
+            </div>
+        </div>
 
-<div class="row">
-    <div class="col-md-3 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5>Total Penjualan</h5>
-                <h3>Rp {{ number_format($totalSales, 0, ',', '.') }}</h3>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <div class="stat-label">Penjualan Hari Ini</div>
+                <div class="stat-value" id="todaySales">Rp 8.450.000</div>
+                <div class="stat-change">
+                    <i class="bi bi-arrow-up"></i> +12.5% dari kemarin
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h5>Total Pembayaran</h5>
-                <h3>Rp {{ number_format($totalPaid, 0, ',', '.') }}</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-warning text-dark">
-            <div class="card-body">
-                <h5>Piutang</h5>
-                <h3>Rp {{ number_format($totalDue, 0, ',', '.') }}</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-secondary text-white">
-            <div class="card-body">
-                <h5>Transaksi Hari Ini</h5>
-                <h3>{{ $todaySalesCount }}</h3>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-8 mb-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                Grafik Penjualan Bulanan
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="bi bi-receipt"></i>
+                </div>
+                <div class="stat-label">Total Transaksi</div>
+                <div class="stat-value" id="totalTransactions">127</div>
+                <div class="stat-change">
+                    <i class="bi bi-arrow-up"></i> +8.3% dari kemarin
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="salesChart" height="120"></canvas>
+
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div class="stat-label">Rata-rata Transaksi</div>
+                <div class="stat-value" id="avgTransaction">Rp 66.535</div>
+                <div class="stat-change">
+                    <i class="bi bi-arrow-up"></i> +3.2% dari kemarin
+                </div>
+            </div>
+
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-label">Customer Hari Ini</div>
+                <div class="stat-value" id="todayCustomers">98</div>
+                <div class="stat-change">
+                    <i class="bi bi-arrow-up"></i> +15.7% dari kemarin
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                Status Pembayaran
-            </div>
-            <div class="card-body">
-                <canvas id="statusChart" height="220"></canvas>
+        <!-- Quick Actions -->
+        <div class="content-section">
+            <div class="section-title">Quick Actions</div>
+            <div class="quick-actions">
+                <a href="#" class="quick-btn" id="btnQuickPOS">
+                    <div><i class="bi bi-cart-plus"></i></div>
+                    <div class="quick-btn-label">Buka POS</div>
+                </a>
+                <a href="#" class="quick-btn" id="btnQuickProduct">
+                    <div><i class="bi bi-box-seam"></i></div>
+                    <div class="quick-btn-label">Master Barang</div>
+                </a>
+                <a href="#" class="quick-btn" id="btnQuickReport">
+                    <div><i class="bi bi-file-text"></i></div>
+                    <div class="quick-btn-label">Laporan Harian</div>
+                </a>
+                <a href="#" class="quick-btn" id="btnQuickStock">
+                    <div><i class="bi bi-boxes"></i></div>
+                    <div class="quick-btn-label">Stok Opname</div>
+                </a>
+                <a href="#" class="quick-btn" id="btnQuickCustomer">
+                    <div><i class="bi bi-person-badge"></i></div>
+                    <div class="quick-btn-label">Data Customer</div>
+                </a>
+                <a href="#" class="quick-btn" id="btnQuickSettings">
+                    <div><i class="bi bi-gear"></i></div>
+                    <div class="quick-btn-label">Pengaturan</div>
+                </a>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="card mt-4">
-    <div class="card-header">Transaksi Terbaru</div>
-    <div class="card-body">
-        <table class="table table-bordered table-striped">
-            <thead class="table-light">
-                <tr>
-                    <th>No</th>
-                    <th>Tanggal</th>
-                    <th>Client</th>
-                    <th>Total</th>
-                    <th>Dibayar</th>
-                    <th>Sisa</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($recentSales ?? [] as $s)
-                <tr>
-                    <td>{{ $s->nomor_sales }}</td>
-                    <td>{{ $s->sales_date }}</td>
-                    <td>{{ $s->client->nama_client ?? '-' }}</td>
-                    <td>Rp {{ number_format($s->total, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($s->total_paid, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($s->due_amount, 0, ',', '.') }}</td>
-                    <td>
-                        <span class="badge bg-{{ $s->status_bayar == 'lunas' ? 'success' : ($s->status_bayar == 'cicil' ? 'warning' : 'danger') }}">
-                            {{ ucfirst($s->status_bayar) }}
-                        </span>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="card mt-4">
-    <div class="card-header bg-info text-white">
-        Barang Terlaris
-    </div>
-    <div class="card-body">
-        <table class="table table-bordered table-striped">
-            <thead class="table-light">
-                <tr>
-                    <th>No</th>
-                    <th>Nama Barang</th>
-                    <th>Total Terjual</th>
-                    <th>Total Penjualan (Rp)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($topItems as $index => $item)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $item->barang->nama_barang ?? '-' }}</td>
-                        <td>{{ $item->total_qty }}</td>
-                        <td>Rp {{ number_format($item->total_sales, 0, ',', '.') }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="text-center">Belum ada data penjualan.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
+        <!-- Charts & Activity -->
+        <div class="content-section">
+            <div class="section-title">Ringkasan & Aktivitas</div>
+            <div class="chart-grid">
+                <!-- Chart Area -->
+                <div class="chart-container">
+                    <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                        <i class="bi bi-bar-chart" style="font-size: 48px; margin-bottom: 12px; display: block;"></i>
+                        <div style="font-size: 12px; font-weight: 500;">Grafik Penjualan 7 Hari Terakhir</div>
+                        <div style="font-size: 10px; margin-top: 4px;">Integrasi Chart.js atau Recharts</div>
+                    </div>
+                </div>
 
-@php
-    // Buat label bulan manual agar aman
-    $monthLabels = [];
-    foreach (array_keys($salesPerMonth) as $m) {
-        $monthLabels[] = date('M', mktime(0, 0, 0, $m, 1));
-    }
-@endphp
+                <!-- Recent Activity -->
+                <div class="chart-container">
+                    <div style="font-size: 11px; font-weight: 600; color: #111827; margin-bottom: 10px;">
+                        Aktivitas Terbaru
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-cart-check" style="color: #22c55e;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Transaksi #TRX-2025-001234</div>
+                                <div class="activity-time">5 menit yang lalu • Rp 245.000</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-box-arrow-in-down" style="color: #3b82f6;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Stok Masuk: Nasi Goreng Spesial</div>
+                                <div class="activity-time">12 menit yang lalu • +50 pcs</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-person-plus" style="color: #f59e0b;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Customer Baru: Ahmad Rizki</div>
+                                <div class="activity-time">25 menit yang lalu</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-cart-check" style="color: #22c55e;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Transaksi #TRX-2025-001233</div>
+                                <div class="activity-time">32 menit yang lalu • Rp 180.500</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-exclamation-triangle" style="color: #ef4444;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Stok Rendah: Es Teh Manis</div>
+                                <div class="activity-time">45 menit yang lalu • Sisa 5 pcs</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-cart-check" style="color: #22c55e;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Transaksi #TRX-2025-001232</div>
+                                <div class="activity-time">1 jam yang lalu • Rp 420.000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info Cards -->
+        <div class="content-section">
+            <div class="section-title">Informasi Tambahan</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-box"></i>
+                    </div>
+                    <div class="stat-label">Total Produk</div>
+                    <div class="stat-value" style="color: #111827;">342</div>
+                    <div class="stat-change" style="color: #9ca3af;">18 kategori</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-label">Stok Menipis</div>
+                    <div class="stat-value" style="color: #ef4444;">12</div>
+                    <div class="stat-change" style="color: #9ca3af;">Perlu restock</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-label">Total Customer</div>
+                    <div class="stat-value" style="color: #111827;">1.247</div>
+                    <div class="stat-change" style="color: #9ca3af;">+23 bulan ini</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-star"></i>
+                    </div>
+                    <div class="stat-label">Produk Terlaris</div>
+                    <div class="stat-value" style="color: #111827; font-size: 12px;">Nasi Goreng</div>
+                    <div class="stat-change" style="color: #9ca3af;">89 terjual hari ini</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // === Data dari Laravel ===
-    const salesData = @json(array_values($salesPerMonth));
-    const salesLabels = @json($monthLabels);
+    $(function () {
 
-    const statusData = @json(array_values($statusCounts));
-    const statusLabels = @json(array_keys($statusCounts));
+        // Refresh button
+        $('#btnRefresh').on('click', function () {
+            Swal.fire({
+                icon: 'info',
+                title: 'Memuat Ulang Data',
+                text: 'Dashboard akan diperbarui dengan data terbaru.',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
+        });
 
-    // === Chart Penjualan Bulanan ===
-    const ctx1 = document.getElementById('salesChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'line',
-        data: {
-            labels: salesLabels,
-            datasets: [{
-                label: 'Total Penjualan (Rp)',
-                data: salesData,
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 4,
-                pointBackgroundColor: '#007bff'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: true, position: 'top' }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return 'Rp ' + value.toLocaleString('id-ID');
-                        }
-                    }
-                }
-            }
+        // New Transaction button
+        $('#btnNewTransaction').on('click', function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Buka POS',
+                text: 'Mengarahkan ke halaman POS...',
+                timer: 1000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = 'pos.html';
+            });
+        });
+
+        // Quick action buttons
+        $('#btnQuickPOS').on('click', function (e) {
+            e.preventDefault();
+            window.location.href = 'pos.html';
+        });
+
+        $('#btnQuickProduct').on('click', function (e) {
+            e.preventDefault();
+            window.location.href = 'master-barang.html';
+        });
+
+        $('#btnQuickReport').on('click', function (e) {
+            e.preventDefault();
+            Swal.fire('Laporan', 'Halaman laporan akan segera tersedia.', 'info');
+        });
+
+        $('#btnQuickStock').on('click', function (e) {
+            e.preventDefault();
+            Swal.fire('Stok Opname', 'Halaman stok opname akan segera tersedia.', 'info');
+        });
+
+        $('#btnQuickCustomer').on('click', function (e) {
+            e.preventDefault();
+            Swal.fire('Customer', 'Halaman data customer akan segera tersedia.', 'info');
+        });
+
+        $('#btnQuickSettings').on('click', function (e) {
+            e.preventDefault();
+            Swal.fire('Pengaturan', 'Halaman pengaturan akan segera tersedia.', 'info');
+        });
+
+        // Simulate real-time updates (dummy)
+        function updateStats() {
+            const randomIncrease = (base, variance) => {
+                return base + Math.floor(Math.random() * variance);
+            };
+
+            // Just for demo - in production, fetch from API
+            setInterval(function () {
+                const currentSales = parseInt($('#todaySales').text().replace(/[^0-9]/g, ''));
+                const newSales = randomIncrease(currentSales, 100000);
+                $('#todaySales').text('Rp ' + newSales.toLocaleString('id-ID'));
+            }, 30000); // Update every 30 seconds
         }
-    });
 
-    // === Chart Status Pembayaran ===
-    const ctx2 = document.getElementById('statusChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'pie',
-        data: {
-            labels: statusLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
-            datasets: [{
-                data: statusData,
-                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' },
-            }
-        }
+        // Start stats animation
+        updateStats();
     });
 </script>
 @endpush

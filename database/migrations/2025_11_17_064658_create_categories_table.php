@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('image')->nullable();
-            $table->timestamps();
+              $table->uuid('id')->primary();
+        $table->uuid('tenant_id'); // Multi Tenant
+        $table->string('kode', 50);
+        $table->string('nama', 200);
+        $table->enum('status', ['active', 'nonactive'])->default('active');
+        $table->timestamps();
+
+           $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
+
+            // Index
+            $table->index('tenant_id');
+            $table->index('status');
         });
     }
 
