@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
         Route::get('/{id}', [SupplierController::class, 'show'])->name('suppliers.show');
+        Route::get('/generate/code', [SupplierController::class, 'generateCode'])->name('suppliers.generate.code');
     });
 
 Route::prefix('units')->group(function () {
