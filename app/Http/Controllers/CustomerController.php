@@ -3,164 +3,213 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use App\Models\Product;
-use App\Models\Promo;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display index page.
      */
     public function index()
     {
-        return view('customer.index');
+        return view('customers.index');
     }
-
-  public function getData(Request $request)
-{
-    $query = Customer::query();
-
-    if ($request->has('search') && $request->search != '') {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('no_telp', 'like', "%{$search}%")
-              ->orWhere('address', 'like', "%{$search}%");
-        });
-    }
-
-    $customers = $query->orderBy('id', 'desc')->paginate(2);
-
-    return response()->json($customers);
-}
-
-
-
 
     /**
-     * Show the form for creating a new resource.
+     * Get data for DataTables / AJAX.
+     */
+    public function getData(Request $request)
+    {
+        $query = Customer::query();
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('kode', 'like', "%$search%")
+                    ->orWhere('nama', 'like', "%$search%")
+                    ->orWhere('telepon', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('kota', 'like', "%$search%");
+            });
+        }
+
+        // Filter status
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        // Filter member (yes/no)
+        if ($request->filled('member') && $request->member !== 'all') {
+            $query->where('member', $request->member);
+        }
+
+        // Order
+        $query->orderBy('created_at', 'desc');
+
+        // Pagination
+        $perPage = $request->get('per_page', 10);
+        $data = $query->paginate($perPage);
+
+        return response()->json($data);
+    }
+
+    /**
+     * Create page.
      */
     public function create()
     {
-        //
+        return view('customers.create');
     }
 
+    /**
+     * Store new record.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'no_telp' => 'required|string|max:20|unique:customers,no_telp',
-            'address' => 'nullable|string|max:500',
+            'kode' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('customers')->where(function ($q) {
+                    return $q->where('tenant_id', Auth::user()->tenant_id);
+                })
+            ],
+            'nama' => 'required|string|max:200',
+            'telepon' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:100',
+            'tipe' => 'nullable|string|max:50',
+            'member' => 'nullable|in:none,silver,gold,platinum',
+            'alamat' => 'nullable|string',
+            'kota' => 'nullable|string|max:100',
+            'limit' => 'nullable|numeric|min:0',
+            'status' => 'required|in:active,nonactive',
+            'catatan' => 'nullable|string',
         ]);
 
-        $customer = Customer::create($validated);
+        $validated['tenant_id'] = Auth::user()->tenant_id;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Customer berhasil ditambahkan',
-            'customer' => $customer
-        ]);
+        try {
+            $customer = Customer::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer berhasil ditambahkan',
+                'data' => $customer
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan customer: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-
-
-
-
-
-
     /**
-     * Display the specified resource.
+     * Show one record (JSON)
      */
-    public function show(Customer $customer)
+    public function show($id)
     {
-        //
+        $data = Customer::findOrFail($id);
+        return response()->json($data);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show edit form.
      */
-    public function edit(Customer $customer)
+    public function edit($id)
     {
-        //
+        $customer = Customer::findOrFail($id);
+        return view('customers.edit', compact('customer'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update record.
      */
     public function update(Request $request, $id)
     {
         $customer = Customer::findOrFail($id);
 
         $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'no_telp' => 'required|string|max:20|unique:customers,no_telp,' . $id,
-            'address' => 'nullable|string|max:500',
+            'kode' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('customers')->where(function ($q) use ($id) {
+                    return $q->where('tenant_id', Auth::user()->tenant_id)
+                        ->where('id', '!=', $id);
+                })
+            ],
+            'nama' => 'required|string|max:200',
+            'telepon' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:100',
+            'tipe' => 'nullable|string|max:50',
+            'member' => 'nullable|in:none,silver,gold,platinum',
+            'alamat' => 'nullable|string',
+            'kota' => 'nullable|string|max:100',
+            'limit' => 'nullable|numeric|min:0',
+            'status' => 'required|in:active,nonactive',
+            'catatan' => 'nullable|string',
         ]);
 
-        $customer->update($validated);
+        try {
+            $customer->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Customer berhasil diperbarui',
-            'customer' => $customer
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer berhasil diperbarui',
+                'data' => $customer
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui customer: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-
     /**
-     * Remove the specified resource from storage.
+     * Delete record (soft delete).
      */
     public function destroy($id)
     {
-        $customer = Customer::findOrFail($id);
-        $customer->delete();
+        try {
+            $data = Customer::findOrFail($id);
+            $data->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus customer: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate auto customer code.
+     */
+    public function generateCode()
+    {
+        $last = Customer::orderBy('kode', 'desc')->first();
+
+        if (!$last) {
+            $newCode = 'CUST-001';
+        } else {
+            $lastNum = (int) substr($last->kode, -3);
+            $newNum = str_pad($lastNum + 1, 3, '0', STR_PAD_LEFT);
+            $newCode = 'CUST-' . $newNum;
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Customer berhasil dihapus'
+            'code' => $newCode
         ]);
-    }
-
-    public function search(Request $request)
-    {
-        $search = $request->q;
-
-        $customers = Customer::where('name', 'like', "%$search%")
-            ->orWhere('no_telp', 'like', "%$search%")
-            ->orWhere('address', 'like', "%$search%")
-            ->limit(20)
-            ->get();
-
-        return response()->json($customers);
-    }
-
-    public function promoCheck($id)
-    {
-        $customer = Customer::findOrFail($id);
-        $promo = Promo::where('is_active', 1)->first();
-
-        $info = [
-            'squence'      => $customer->squence,
-            'free_voucher'  => $customer->free_voucher,
-            'eligible_free' => false,
-            'message'       => null,
-        ];
-
-        if ($promo) {
-            if ($customer->free_voucher > 0) {
-                $info['eligible_free'] = true;
-                $info['message'] = "Customer punya {$customer->free_voucher} voucher gratis.";
-            } elseif ($customer->squence >= $promo->buy_count) {
-                $info['eligible_free'] = true;
-                $info['message'] = "Transaksi ini GRATIS (promo aktif setelah {$promo->buy_count}x).";
-            } else {
-                $info['message'] = "Customer baru cuci {$customer->squence}x, promo berlaku di transaksi ke-{$promo->buy_count}.";
-            }
-        }
-
-        return response()->json($info);
     }
 }

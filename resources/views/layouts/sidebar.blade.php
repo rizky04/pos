@@ -21,6 +21,13 @@
            </div>
        </a>
 
+        <!-- MASTER CUSTOMER ACTIVE -->
+        <a href="{{ route('customers.index') }}">
+            <div class="side-btn {{ request()->routeIs('customers.*') ? 'active' : '' }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Master Customer">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+        </a>
+
        <a href="{{ route('units.index') }}">
            <div class="side-btn {{ request()->routeIs('units.*') ? 'active' : '' }}" data-bs-toggle="tooltip"
                data-bs-placement="right" title="Master Satuan">

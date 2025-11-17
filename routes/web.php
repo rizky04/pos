@@ -86,6 +86,16 @@ Route::prefix('warehouses')->group(function () {
     Route::get('/generate/code', [WarehouseController::class, 'generateCode'])->name('warehouses.generate.code');
 });
 
+Route::prefix('customers')->group(function () {
+    Route::get('/', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/data', [CustomerController::class, 'getData'])->name('customers.data');
+    Route::post('/', [CustomerController::class, 'store'])->name('customers.store');
+    Route::put('/{id}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+    Route::get('/{id}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('/generate/code', [CustomerController::class, 'generateCode'])->name('customers.generate.code');
+});
+
 
 
     Route::get('/select2/products', [Select2Controller::class, 'products'])->name('select2.products');
