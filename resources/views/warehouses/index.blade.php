@@ -33,7 +33,7 @@
             <select id="filterStatus">
                 <option value="">Semua Status</option>
                 <option value="active">Aktif</option>
-                <option value="inactive">Non Aktif</option>
+                <option value="nonactive">Non Aktif</option>
             </select>
         </div>
 
@@ -137,7 +137,7 @@
                             <label class="form-label">Status</label>
                             <select id="status" class="form-select">
                                 <option value="active">Aktif</option>
-                                <option value="inactive">Non Aktif</option>
+                                <option value="nonactive">Non Aktif</option>
                             </select>
                         </div>
 
