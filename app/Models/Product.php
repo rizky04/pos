@@ -2,33 +2,55 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    protected $table = 'tbl_barang';
-    protected $primaryKey = 'id_barang'; // tambahkan ini
-    public $incrementing = true;
-    protected $keyType = 'int';
+    use HasFactory, BelongsToTenant, HasUuids, SoftDeletes;
+
     protected $fillable = [
-        'kode_barang',
-        'nama_barang',
-        'merk_barang',
-        'keterangan',
-        'lokasi',
-        'stok_barang',
-        'pagu',
-        'harga_kulak',
+        'tenant_id',
+        'category_id',
+        'unit_id',
+        'kode',
+        'nama',
+        'harga_modal',
         'harga_jual',
-        'distributor',
-        'jenis',
-        'hapus',
+        'stok',
+        'status',
     ];
 
-    public $timestamps = false;
+    public $incrementing = false;
+    protected $keyType = 'string';
 
-    public function serviceSpareparts()
+    /** RELASI */
+    public function tenant()
     {
-        return $this->hasMany(ServiceSparepart::class, 'id_barang', 'id_barang');
+        return $this->belongsTo(Tenant::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    /** SCOPE */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeNonactive($query)
+    {
+        return $query->where('status', 'nonactive');
     }
 }

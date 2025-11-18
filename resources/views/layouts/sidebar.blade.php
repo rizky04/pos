@@ -8,9 +8,11 @@
                <i class="bi bi-house-door-fill"></i>
            </div>
        </a>
-       <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="POS / Kasir">
+       <a href="{{ route('pos.index') }}">
+       <div class="side-btn {{ request()->routeIs('pos.index') ? 'active' : '' }}" data-bs-toggle="tooltip" data-bs-placement="right" title="POS / Kasir">
            <i class="bi bi-speedometer2"></i>
        </div>
+       </a>
        <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Daftar Transaksi">
            <i class="bi bi-receipt"></i>
        </div>
@@ -49,9 +51,14 @@
                <i class="bi bi-building"></i>
            </div>
        </a>
-       <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Master Barang">
-           <i class="bi bi-box-seam"></i>
-       </div>
+        <a href="{{ route('products.index') }}">
+        <div class="side-btn {{ request()->routeIs('products.*') ? 'active' : '' }}"
+             data-bs-toggle="tooltip"
+             data-bs-placement="right"
+             title="Master Barang">
+            <i class="bi bi-box-seam"></i>
+        </div>
+         </a>
        <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Master Kategori">
            <i class="bi bi-tags"></i>
        </div>

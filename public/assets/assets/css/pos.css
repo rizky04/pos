@@ -1,0 +1,324 @@
+
+
+        /* MENU AREA */
+        .menu-header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .category-pill {
+            min-width: 68px;
+            padding: 8px 14px;
+            border-radius: 18px;
+            background: #f9fafb;
+            color: #6b7280;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all .2s ease;
+            white-space: nowrap;
+        }
+
+        .category-pill i {
+            font-size: 14px;
+        }
+
+        .category-pill.active,
+        .category-pill:hover {
+            background: #ff3b5c;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(255, 59, 92, 0.35);
+        }
+
+        .search-box {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            font-size: 12px;
+            width: 100%;
+            outline: none;
+        }
+
+        .product-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .product-card {
+            background: #f9fafb;
+            border-radius: 18px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .16s ease;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            border-color: #ff3b5c30;
+        }
+
+        .product-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 999px;
+            margin: 0 auto 8px;
+            background: radial-gradient(circle at 25% 0, #fff, #fde68a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+
+        .product-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .product-price {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .product-stock {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .badge-new {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: #ff3b5c;
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 999px;
+        }
+
+        .product-card.out-stock {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .product-card.out-stock::after {
+            content: "Stok Habis";
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: #ff3b5c;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 18px;
+        }
+
+        /* ORDER PANEL */
+        .order-panel {
+            background: #f9fafb;
+            border-radius: 24px;
+            padding: 18px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .order-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .order-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .order-item {
+            background: #fff;
+            border-radius: 14px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(148, 163, 253, 0.12);
+            font-size: 11px;
+        }
+
+        .order-item-name {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .order-item-price {
+            color: #6b7280;
+        }
+
+        .qty-box {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            background: #f9fafb;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .qty-btn {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+            color: #6b7280;
+        }
+
+        .qty-value {
+            padding: 0 6px;
+            font-size: 11px;
+            color: #111827;
+        }
+
+        .remove-item {
+            margin-left: 4px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .summary-row strong {
+            color: #111827;
+        }
+
+        .btn-charge {
+            margin-top: 12px;
+            border: none;
+            width: 100%;
+            padding: 12px 0;
+            border-radius: 18px;
+            font-size: 15px;
+            font-weight: 600;
+            background: #ff3b5c;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 12px 28px rgba(255, 59, 92, .5);
+            transition: all .18s ease;
+        }
+
+        .btn-charge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 40px rgba(255, 59, 92, .55);
+        }
+
+        .btn-charge span {
+            font-size: 13px;
+            font-weight: 400;
+            opacity: .9;
+        }
+
+        .order-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .order-list::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 999px;
+        }
+
+        /* PAGINATION THEME MATCH */
+        #pagination .page-item {
+            margin: 0 2px;
+        }
+
+        #pagination .page-link {
+            border-radius: 999px;
+            border: none;
+            padding: 4px 10px;
+            font-size: 10px;
+            background-color: #f9fafb;
+            color: #ff3b5c;
+            box-shadow: 0 2px 6px rgba(148, 163, 253, 0.18);
+            transition: all .18s ease;
+        }
+
+        #pagination .page-link:hover {
+            background-color: #ff3b5c10;
+            color: #ff3b5c;
+            box-shadow: 0 3px 10px rgba(255, 59, 92, 0.25);
+        }
+
+        #pagination .page-item.active .page-link {
+            background-color: #ff3b5c;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(255, 59, 92, 0.45);
+        }
+
+        #pagination .page-item.disabled .page-link {
+            background-color: #f3f4f6;
+            color: #d1d5db;
+            box-shadow: none;
+        }
+
+        @media (max-width: 992px) {
+            .pos-wrapper {
+                grid-template-columns: 64px 1.6fr 1.1fr;
+                max-width: 100%;
+                border-radius: 0;
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pos-wrapper {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .sidebar {
+                flex-direction: row;
+                justify-content: flex-start;
+                overflow-x: auto;
+                border-radius: 18px;
+            }
+        }
