@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="row">
-    <div class="col-8">
+    <div class="col-12 col-md-8 mb-3">
      <section>
         <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
@@ -245,7 +245,7 @@
     </section>
 </div>
     <!-- ORDER PANEL -->
-    <div class="col-4">
+    <div class="col-12 col-md-4">
     <aside class="order-panel">
         <div class="d-flex justify-content-between align-items-center">
             <div>
