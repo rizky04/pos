@@ -73,151 +73,11 @@
                 </ul>
             </div>
         </div>
-
-        <!-- Product Grid (harga Rupiah + Stok) -->
-        {{-- <div class="product-grid" id="productGrid">
-            <!-- ITEM CONTOH (semua item awal, nanti dipaginate lewat JS) -->
-            <div class="product-card" data-name="Triple Burger" data-price="54000" data-category="burger" data-stock="10">
-                <div class="product-thumb">🍔</div>
-                <div class="product-name">Triple Burger</div>
-                <div class="product-price">Rp 54.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">10</span></div>
-            </div>
-
-            <div class="product-card" data-name="Double Cheese" data-price="49000" data-category="burger" data-stock="8">
-                <div class="product-thumb">🧀</div>
-                <div class="product-name">Double Cheese</div>
-                <div class="product-price">Rp 49.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">8</span></div>
-            </div>
-
-            <div class="product-card" data-name="Origin Burger" data-price="42000" data-category="burger" data-stock="5">
-                <div class="product-thumb">🍔</div>
-                <div class="product-name">Origin Burger</div>
-                <div class="product-price">Rp 42.000</div>
-                <div class="badge-new">Hot</div>
-                <div class="product-stock">Stok: <span class="stock-val">5</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Pop" data-price="32000" data-category="snack" data-stock="12">
-                <div class="product-thumb">🍗</div>
-                <div class="product-name">Chicken Pop</div>
-                <div class="product-price">Rp 32.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">12</span></div>
-            </div>
-
-            <div class="product-card" data-name="Happy Breakfast" data-price="38000" data-category="snack" data-stock="6">
-                <div class="product-thumb">🥪</div>
-                <div class="product-name">Happy Breakfast</div>
-                <div class="product-price">Rp 38.000</div>
-                <div class="badge-new">New</div>
-                <div class="product-stock">Stok: <span class="stock-val">6</span></div>
-            </div>
-
-            <div class="product-card" data-name="Kebab Katsu" data-price="45900" data-category="snack" data-stock="7">
-                <div class="product-thumb">🌯</div>
-                <div class="product-name">Kebab Katsu</div>
-                <div class="product-price">Rp 45.900</div>
-                <div class="product-stock">Stok: <span class="stock-val">7</span></div>
-            </div>
-
-            <div class="product-card" data-name="Caffe Latte" data-price="31000" data-category="drink" data-stock="15">
-                <div class="product-thumb">☕</div>
-                <div class="product-name">Caffe Latte</div>
-                <div class="product-price">Rp 31.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">15</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Nugget" data-price="24000" data-category="snack" data-stock="9">
-                <div class="product-thumb">🍟</div>
-                <div class="product-name">Chicken Nugget</div>
-                <div class="product-price">Rp 24.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">9</span></div>
-            </div>
-
-            <div class="product-card" data-name="Caffe Latte" data-price="31000" data-category="drink" data-stock="15">
-                <div class="product-thumb">☕</div>
-                <div class="product-name">Caffe Latte</div>
-                <div class="product-price">Rp 31.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">15</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Nugget" data-price="24000" data-category="snack" data-stock="9">
-                <div class="product-thumb">🍟</div>
-                <div class="product-name">Chicken Nugget</div>
-                <div class="product-price">Rp 24.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">9</span></div>
-            </div>
-
-            <div class="product-card" data-name="Caffe Latte" data-price="31000" data-category="drink" data-stock="15">
-                <div class="product-thumb">☕</div>
-                <div class="product-name">Caffe Latte</div>
-                <div class="product-price">Rp 31.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">15</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Nugget" data-price="24000" data-category="snack" data-stock="9">
-                <div class="product-thumb">🍟</div>
-                <div class="product-name">Chicken Nugget</div>
-                <div class="product-price">Rp 24.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">9</span></div>
-            </div>
-
-            <div class="product-card" data-name="Caffe Latte" data-price="31000" data-category="drink" data-stock="15">
-                <div class="product-thumb">☕</div>
-                <div class="product-name">Caffe Latte</div>
-                <div class="product-price">Rp 31.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">15</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Nugget" data-price="24000" data-category="snack" data-stock="9">
-                <div class="product-thumb">🍟</div>
-                <div class="product-name">Chicken Nugget</div>
-                <div class="product-price">Rp 24.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">9</span></div>
-            </div>
-
-            <div class="product-card" data-name="Caffe Latte" data-price="31000" data-category="drink" data-stock="15">
-                <div class="product-thumb">☕</div>
-                <div class="product-name">Caffe Latte</div>
-                <div class="product-price">Rp 31.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">15</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Nugget" data-price="24000" data-category="snack" data-stock="9">
-                <div class="product-thumb">🍟</div>
-                <div class="product-name">Chicken Nugget</div>
-                <div class="product-price">Rp 24.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">9</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Nugget" data-price="24000" data-category="snack" data-stock="9">
-                <div class="product-thumb">🍟</div>
-                <div class="product-name">Chicken Nugget</div>
-                <div class="product-price">Rp 24.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">9</span></div>
-            </div>
-
-            <div class="product-card" data-name="Caffe Latte" data-price="31000" data-category="drink" data-stock="15">
-                <div class="product-thumb">☕</div>
-                <div class="product-name">Caffe Latte</div>
-                <div class="product-price">Rp 31.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">15</span></div>
-            </div>
-
-            <div class="product-card" data-name="Chicken Nugget" data-price="24000" data-category="snack" data-stock="9">
-                <div class="product-thumb">🍟</div>
-                <div class="product-name">Chicken Nugget</div>
-                <div class="product-price">Rp 24.000</div>
-                <div class="product-stock">Stok: <span class="stock-val">9</span></div>
-            </div>
-
-            <!-- Tambah produk baru cukup copy block di atas -->
-        </div> --}}
         <div class="product-grid" id="productGrid">
 @foreach ($products as $p)
     <div class="product-card
         {{ $p->stok <= 0 ? 'out-stock' : '' }}"
+           data-id="{{ $p->id }}"
         data-name="{{ $p->nama }}"
         data-price="{{ $p->harga_jual }}"
         data-category="{{ $p->category_id }}"
@@ -317,8 +177,96 @@
     </aside>
     </div>
     </div>
+
+    <!-- MODAL STRUK -->
+<div class="modal fade" id="receiptModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content" id="receiptArea" style="font-size:13px;">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Struk Pembayaran</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <div class="text-center mb-2">
+              <h6 class="fw-bold">TOKO KASIRKU</h6>
+              <div style="font-size:11px">Jl. Contoh Alamat No. 123</div>
+              <hr>
+          </div>
+
+          <div id="receiptItems"></div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between">
+              <span>Subtotal</span>
+              <span id="r_subtotal"></span>
+          </div>
+          <div class="d-flex justify-content-between">
+              <span>Discount</span>
+              <span id="r_discount"></span>
+          </div>
+          <div class="d-flex justify-content-between">
+              <span>PPN</span>
+              <span id="r_ppn"></span>
+          </div>
+
+          <hr>
+          <div class="d-flex justify-content-between fw-bold">
+              <span>Total</span>
+              <span id="r_total"></span>
+          </div>
+          <div class="d-flex justify-content-between">
+              <span>Dibayar</span>
+              <span id="r_paid"></span>
+          </div>
+          <div class="d-flex justify-content-between">
+              <span>Kembalian</span>
+              <span id="r_change"></span>
+          </div>
+
+          <hr>
+          <div class="text-center" style="font-size:11px;">
+              Terima kasih telah berbelanja 🙏
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary no-print btn-sm" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary no-print btn-sm" onclick="printReceipt()">Print</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <style>
+    @media print {
+        .no-print {
+        display: none !important;
+        visibility: hidden !important;
+    }
+        body * {
+            visibility: hidden;
+        }
+        #receiptArea, #receiptArea * {
+            visibility: visible;
+        }
+        #receiptArea {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+    }
+    </style>
+
 @push('scripts')
 <script>
+    function printReceipt() {
+    window.print();
+}
     let grandTotal = 0;
 
     const state = {
@@ -445,7 +393,7 @@
         renderPagination(totalPages);
     }
 
-    function addToCart(name, price) {
+    function addToCart(id,name, price) {
         if (!changeStock(name, -1)) {
             Swal.fire('Stok habis', 'Stok ' + name + ' sudah habis.', 'warning');
             return;
@@ -459,7 +407,7 @@
             qtySpan.text(parseInt(qtySpan.text(), 10) + 1);
         } else {
             const item = $(`
-                <li class="order-item" data-name="${name}" data-price="${price}">
+                <li class="order-item"  data-id="${id}" data-name="${name}" data-price="${price}">
                     <div>
                         <div class="order-item-name">${name}</div>
                         <div class="order-item-price">${formatRupiah(price)}</div>
@@ -479,6 +427,7 @@
         recalcTotals();
     }
 
+
     $(function () {
         applyFiltersAndPaginate();
         recalcTotals();
@@ -489,9 +438,10 @@
                 Swal.fire('Stok habis', 'Produk ini sudah tidak tersedia.', 'warning');
                 return;
             }
+            const id = $(this).data('id');
             const name = $(this).data('name');
             const price = parseFloat($(this).data('price'));
-            addToCart(name, price);
+            addToCart(id, name, price);
         });
 
         // Pagination
@@ -567,42 +517,114 @@
         // Bayar
         $('#payAmount').on('input', updateChange);
 
-        // Charge
+
         $('#btnCharge').on('click', function () {
-            if (grandTotal <= 0) {
-                Swal.fire('Tidak ada transaksi', 'Silakan pilih item terlebih dahulu.', 'warning');
-                return;
-            }
 
-            const pay = parseFloat($('#payAmount').val()) || 0;
-            if (pay < grandTotal) {
-                Swal.fire(
-                    'Pembayaran kurang',
-                    'Total: ' + formatRupiah(grandTotal) +
-                    '<br>Dibayar: ' + formatRupiah(pay),
-                    'error'
-                );
-                return;
-            }
+if (grandTotal <= 0) {
+    Swal.fire('Tidak ada item!', 'Silakan pilih barang terlebih dahulu.', 'warning');
+    return;
+}
 
-            const change = pay - grandTotal;
-            Swal.fire({
-                icon: 'success',
-                title: 'Transaksi berhasil',
-                html:
-                    'Total: <b>' + formatRupiah(grandTotal) + '</b><br>' +
-                    'Dibayar: <b>' + formatRupiah(pay) + '</b><br>' +
-                    'Kembalian: <b>' + formatRupiah(change) + '</b>'
-            }).then(() => {
-                $('#orderList').empty();
-                $('#discountValue').val(0);
-                $('#discountType').val('rp');
-                $('#ppnValue').val(11);
-                $('#payAmount').val('');
-                $('#changeAmount').text('Rp 0');
-                recalcTotals();
-            });
+const payAmount = parseFloat($('#payAmount').val()) || 0;
+if (payAmount < grandTotal) {
+    Swal.fire('Pembayaran kurang!', '', 'error');
+    return;
+}
+
+let items = [];
+
+$('#orderList .order-item').each(function () {
+    items.push({
+        product_id: $(this).data('id'),
+        qty: parseInt($(this).find('.qty-value').text(), 10),
+        price: parseFloat($(this).data('price')),
+    });
+});
+
+let payload = {
+    items: items,
+
+    sub_total: parseInt($('#subTotal').text().replace(/[Rp .]/g, '')) || 0,
+    discount_type: $('#discountType').val(),
+    discount_value: parseInt($('#discountValue').val()) || 0,
+    total_after_discount: parseInt($('#afterDiscount').text().replace(/[Rp .]/g, '')) || 0,
+
+    ppn: parseInt($('#ppnValue').val()) || 0,
+    total_after_ppn: parseInt($('#afterPpn').text().replace(/[Rp .]/g, '')) || 0,
+
+    pay_amount: payAmount,
+    change_amount: payAmount - grandTotal,
+
+    _token: "{{ csrf_token() }}"
+};
+
+$.ajax({
+    url: "{{ route('pos.store') }}",
+    type: "POST",
+    data: payload,
+    success: function (res) {
+          // --- Generate item struk ---
+    let itemHTML = '';
+    $('#orderList .order-item').each(function () {
+        const name = $(this).data('name');
+        const price = $(this).data('price');
+        const qty    = parseInt($(this).find('.qty-value').text(), 10);
+        const total  = price * qty;
+
+        itemHTML += `
+            <div class="d-flex justify-content-between">
+                <div>${name} x${qty}</div>
+                <div>${formatRupiah(total)}</div>
+            </div>
+        `;
+    });
+    $('#receiptItems').html(itemHTML);
+
+
+    // Summary Struk
+    $('#r_subtotal').text($('#subTotal').text());
+    $('#r_discount').text($('#discountValue').val() + ($('#discountType').val() === 'percent' ? '%' : ' Rp'));
+    $('#r_ppn').text($('#ppnValue').val() + '%');
+    $('#r_total').text(formatRupiah(grandTotal));
+    $('#r_paid').text(formatRupiah(payload.pay_amount));
+    $('#r_change').text(formatRupiah(payload.change_amount));
+
+    // Tampilkan modal struk
+    const modal = new bootstrap.Modal('#receiptModal');
+    modal.show();
+
+    // Reset keranjang
+    $('#orderList').empty();
+    $('#discountValue').val(0);
+    $('#discountType').val('rp');
+    $('#ppnValue').val(11);
+    $('#payAmount').val('');
+    $('#changeAmount').text('Rp 0');
+    recalcTotals();
+
+        // Swal.fire({
+        //     icon: 'success',
+        //     title: 'Transaksi berhasil disimpan!'
+        // }).then(() => {
+        //     location.reload();
+        // });
+            // 👉 SweetAlert muncul SETELAH modal ditutup
+    $('#receiptModal').on('hidden.bs.modal', function () {
+        Swal.fire({
+            icon: 'success',
+            title: 'Transaksi berhasil disimpan!'
+        }).then(() => {
+            location.reload();
         });
+    });
+    },
+    error: function (xhr) {
+        Swal.fire('Error', xhr.responseText, 'error');
+    }
+});
+
+});
+
     });
 </script>
 
