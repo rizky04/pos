@@ -152,7 +152,7 @@
             </div>
 
             <div class="summary-row">
-                <span>Setelah PPN</span>
+                <span>Total</span>
                 <strong id="afterPpn">Rp 0</strong>
             </div>
 
@@ -191,8 +191,8 @@
         <div class="modal-body">
 
           <div class="text-center mb-2">
-              <h6 class="fw-bold">TOKO KASIRKU</h6>
-              <div style="font-size:11px">Jl. Contoh Alamat No. 123</div>
+              <h6 class="fw-bold">{{ Auth::user()->tenant->outlets->first()?->outlet_name ?? '-' }}</h6>
+              <div style="font-size:11px">{{ Auth::user()->tenant->outlets->first()?->outlet_address ?? '-' }}</div>
               <hr>
           </div>
 
@@ -234,8 +234,8 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-secondary no-print btn-sm" data-bs-dismiss="modal">Close</button>
-          <button class="btn btn-primary no-print btn-sm" onclick="printReceipt()">Print</button>
+          <button class="btn-soft light no-print btn-sm" data-bs-dismiss="modal">Close</button>
+          <button class="btn-soft primary no-print btn-sm" onclick="printReceipt()">Print</button>
         </div>
 
       </div>

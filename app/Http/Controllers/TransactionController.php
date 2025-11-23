@@ -28,6 +28,10 @@ class TransactionController extends Controller
         return view('transactions.pos', compact('categories', 'products'));
     }
 
+    public function list(){
+        return view('transactions.list');
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -101,9 +105,84 @@ class TransactionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Transaction $transaction)
+//    public function getData(Request $request)
+//     {
+//         $query = Transaction::with(['items.product']);
+
+//         // --- FILTER SEARCH ---
+//         if ($request->search != '') {
+//             $search = $request->search;
+
+//             $query->where(function ($q) use ($search) {
+//                 $q->where('kode', 'like', "%$search%")
+//                   ->orWhere('status', 'like', "%$search%");
+//             });
+//         }
+
+//         // --- FILTER STATUS ---
+//         if ($request->filled('status') && $request->status !== 'all') {
+//             $query->where('status', $request->status);
+//         }
+
+//         // --- FILTER RANGE TANGGAL ---
+//         if ($request->filled('date_from') && $request->filled('date_to')) {
+//             $query->whereBetween('created_at', [
+//                 $request->date_from . " 00:00:00",
+//                 $request->date_to . " 23:59:59"
+//             ]);
+//         }
+
+//         // --- ORDER ---
+//         $query->orderBy('created_at', 'desc');
+
+//         // --- PAGINATION ---
+//         $perPage = $request->get('per_page', 10);
+
+//         $transactions = $query->paginate($perPage);
+
+//         return response()->json($transactions);
+//     }
+ public function getData(Request $request)
     {
-        //
+        $query = Transaction::with('items')
+            ->where('tenant_id', Auth::user()->tenant_id);
+
+        // Search (kode invoice / customer)
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('kode', 'like', "%$search%");
+            });
+        }
+
+        // Filter status
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        // Filter date
+        if ($request->date_from && $request->date_to) {
+            $query->whereBetween('created_at', [
+                $request->date_from . " 00:00:00",
+                $request->date_to . " 23:59:59"
+            ]);
+        }
+
+        $data = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        return response()->json($data);
+    }
+
+    /**
+     * Detail transaksi untuk modal
+     */
+    public function show($id)
+    {
+        $transaction = Transaction::with(['items.product'])
+            ->where('tenant_id', Auth::user()->tenant_id)
+            ->findOrFail($id);
+
+        return response()->json($transaction);
     }
 
     /**

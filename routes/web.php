@@ -119,4 +119,7 @@ Route::prefix('products')->group(function () {
     Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
     Route::resource('pos', TransactionController::class);
+    Route::get('/transactions', [TransactionController::class, 'getData'])->name('transactions.data');
+    Route::get('/transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
+    Route::get('/list/transactions', [TransactionController::class, 'list'])->name('list.transactions');
 });

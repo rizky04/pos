@@ -13,9 +13,11 @@
            <i class="bi bi-speedometer2"></i>
        </div>
        </a>
-       <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Daftar Transaksi">
+         <a href="{{ route('list.transactions') }}">
+       <div class="side-btn {{ request()->routeIs('list.transactions') ? 'active' : '' }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Daftar Transaksi">
            <i class="bi bi-receipt"></i>
        </div>
+            </a>
        <a href="{{ route('suppliers.index') }}">
            <div class="side-btn {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" data-bs-toggle="tooltip"
                data-bs-placement="right" title="Master Supplier">
@@ -59,9 +61,6 @@
             <i class="bi bi-box-seam"></i>
         </div>
          </a>
-       <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Master Kategori">
-           <i class="bi bi-tags"></i>
-       </div>
        <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Laporan">
            <i class="bi bi-graph-up"></i>
        </div>
