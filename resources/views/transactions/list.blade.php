@@ -449,7 +449,7 @@ $("#transactionTable").on("click", "[data-action='print']", function () {
             let html = '';
             html += `
                 <div class="d-flex justify-content-between">
-                    <span><strong>Struk Pembayaran</strong></span
+                    <span><strong>Customer</strong></span
                     <span>${res.customer ? res.customer.nama : 'Umum'}</span>
                 </div>
                   <div class="d-flex justify-content-between">
