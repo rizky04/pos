@@ -15,6 +15,7 @@ class Transaction extends Model
     protected $fillable = [
         'tenant_id',
         'user_id',
+        'customer_id',
         'kode',
         'sub_total',
         'discount_value',
@@ -38,5 +39,10 @@ class Transaction extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 }

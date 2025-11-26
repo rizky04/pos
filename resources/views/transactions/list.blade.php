@@ -58,6 +58,7 @@
                     <tr>
                         <th>#</th>
                         <th>Kode</th>
+                        <th>Customer</th>
                         <th>Tanggal</th>
                         <th>Total</th>
                         <th>Status</th>
@@ -222,6 +223,7 @@
                 <tr>
                     <td>${i + 1}</td>
                     <td><strong>${t.kode}</strong></td>
+                    <td>${t.customer ? t.customer.nama : 'Umum'}</td>
                     <td>${t.created_at}</td>
                     <td>Rp ${parseInt(t.sub_total).toLocaleString()}</td>
                     <td>${badge}</td>
@@ -324,6 +326,7 @@
             // `);
             $("#transactionDetail").html(`
     <div class="mb-2">
+        <div><b>Customer</b>: ${t.customer ? t.customer.nama : 'Umum'}</div>
         <div><b>Kode</b>: ${t.kode}</div>
         <div><b>Tanggal</b>: ${t.created_at}</div>
         <div><b>Status</b>: ${t.status}</div>
@@ -444,6 +447,21 @@ $("#transactionTable").on("click", "[data-action='print']", function () {
 
             // Item struk
             let html = '';
+            html += `
+                <div class="d-flex justify-content-between">
+                    <span><strong>Struk Pembayaran</strong></span
+                    <span>${res.customer ? res.customer.nama : 'Umum'}</span>
+                </div>
+                  <div class="d-flex justify-content-between">
+                    <span><strong>Kode</strong></span>
+                    <span>${res.kode}</span>
+                </div>
+                 <div class="d-flex justify-content-between">
+                    <span><strong>Tanggal</strong></span>
+                    <span>${res.created_at}</span>
+                </div>
+                <hr>
+            `;
             res.items.forEach(it => {
                 html += `
                     <div class="d-flex justify-content-between">

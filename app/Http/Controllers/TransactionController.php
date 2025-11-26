@@ -45,8 +45,8 @@ class TransactionController extends Controller
      */
    public function store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
+            'customer_id' => 'required',
             'items' => 'required|array',
             'items.*.product_id' => 'required',
             'items.*.qty' => 'required|integer|min:1',
@@ -65,6 +65,7 @@ class TransactionController extends Controller
         $kode = 'TRX-' . date('YmdHis');
 
         $trx = Transaction::create([
+            'customer_id' => $request->customer_id,
             'tenant_id' => Auth::user()->tenant_id,
             'user_id' => Auth::id(),
             'kode' => $kode,
@@ -144,7 +145,7 @@ class TransactionController extends Controller
 //     }
  public function getData(Request $request)
     {
-        $query = Transaction::with('items')
+        $query = Transaction::with('items', 'customer')
             ->where('tenant_id', Auth::user()->tenant_id);
 
         // Search (kode invoice / customer)
@@ -178,7 +179,7 @@ class TransactionController extends Controller
      */
     public function show($id)
     {
-        $transaction = Transaction::with(['items.product'])
+        $transaction = Transaction::with(['items.product', 'customer'])
             ->where('tenant_id', Auth::user()->tenant_id)
             ->findOrFail($id);
 

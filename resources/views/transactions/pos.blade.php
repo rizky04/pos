@@ -107,6 +107,10 @@
     <!-- ORDER PANEL -->
     <div class="col-12 col-md-4">
     <aside class="order-panel">
+        <div class="mb-2">
+    <label style="font-size:12px;font-weight:600;">Customer</label>
+    <select id="customerSelect" class="form-select form-select-sm"></select>
+</div>
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <div class="order-title">Order Produk</div>
@@ -542,6 +546,7 @@ $('#orderList .order-item').each(function () {
 });
 
 let payload = {
+    customer_id: $('#customerSelect').val() || null,
     items: items,
 
     sub_total: parseInt($('#subTotal').text().replace(/[Rp .]/g, '')) || 0,
@@ -565,6 +570,9 @@ $.ajax({
     success: function (res) {
           // --- Generate item struk ---
     let itemHTML = '';
+    let selectedCustomer = $('#customerSelect').select2('data')[0];
+$('#r_customer').text(selectedCustomer ? selectedCustomer.text : '-');
+
     $('#orderList .order-item').each(function () {
         const name = $(this).data('name');
         const price = $(this).data('price');
@@ -572,6 +580,11 @@ $.ajax({
         const total  = price * qty;
 
         itemHTML += `
+        <div class="d-flex justify-content-between">
+    <span>Customer</span>
+    <span id="r_customer"></span>
+</div>
+
             <div class="d-flex justify-content-between">
                 <div>${name} x${qty}</div>
                 <div>${formatRupiah(total)}</div>
@@ -595,6 +608,7 @@ $.ajax({
 
     // Reset keranjang
     $('#orderList').empty();
+    $('#customerSelect').val(null).trigger('change');
     $('#discountValue').val(0);
     $('#discountType').val('rp');
     $('#ppnValue').val(11);
@@ -626,6 +640,33 @@ $.ajax({
 });
 
     });
+    $('#customerSelect').select2({
+    placeholder: "Pilih Customer...",
+    allowClear: true,
+    width: '100%',
+    ajax: {
+        url: "{{ route('customers.data') }}", // pastikan route benar
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+            return {
+                search: params.term || '',
+                per_page: 10
+            };
+        },
+        processResults: function (data) {
+            return {
+                results: data.data.map(c => ({
+                    id: c.id,
+                    text: c.nama + ' (' + c.telepon + ')',
+                    raw: c
+                }))
+            };
+        },
+        cache: true
+    }
+});
+
 </script>
 
 @endpush

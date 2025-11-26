@@ -43,6 +43,14 @@ class Customer extends Model
     }
 
     /**
+     * Relasi ke transaksi
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
      * Scope untuk filter status
      */
     public function scopeActive($query)

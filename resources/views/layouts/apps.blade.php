@@ -680,11 +680,44 @@
             color: #d1d5db;
             box-shadow: none;
         }
+        /* ====== SELECT2 FIX AGAR SAMA DENGAN INPUT BOOTSTRAP ====== */
+
+.select2-container .select2-selection--single {
+    height: calc(1.8125rem + 2px) !important; /* tinggi form-control-sm */
+    padding: 4px 8px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 0.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    font-size: 0.875rem; /* sama seperti input-sm */
+    line-height: 24px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    top: 6px !important;
+    right: 6px !important;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: #86b7fe !important;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Placeholder */
+.select2-selection__placeholder {
+    color: #6c757d !important;
+    font-size: 0.875rem !important;
+}
 
 
     </style>
     <link rel="stylesheet" href="{{ asset('assets/assets/css/main.style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/assets/css/pos.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
@@ -705,6 +738,8 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
      $.ajaxSetup({
         headers: {

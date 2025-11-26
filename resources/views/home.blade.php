@@ -71,11 +71,11 @@
         <div class="content-section">
             <div class="section-title">Quick Actions</div>
             <div class="quick-actions">
-                <a href="#" class="quick-btn" id="btnQuickPOS">
+                <a href="{{ route('pos.index') }}" class="quick-btn" id="btnQuickPOS">
                     <div><i class="bi bi-cart-plus"></i></div>
                     <div class="quick-btn-label">Buka POS</div>
                 </a>
-                <a href="#" class="quick-btn" id="btnQuickProduct">
+                <a href="{{ route('products.index') }}" class="quick-btn" id="btnQuickProduct">
                     <div><i class="bi bi-box-seam"></i></div>
                     <div class="quick-btn-label">Master Barang</div>
                 </a>
@@ -87,7 +87,7 @@
                     <div><i class="bi bi-boxes"></i></div>
                     <div class="quick-btn-label">Stok Opname</div>
                 </a>
-                <a href="#" class="quick-btn" id="btnQuickCustomer">
+                <a href="{{ route('customers.index') }}" class="quick-btn" id="btnQuickCustomer">
                     <div><i class="bi bi-person-badge"></i></div>
                     <div class="quick-btn-label">Data Customer</div>
                 </a>
@@ -225,7 +225,7 @@
     </section>
 
 @push('scripts')
-<script>
+{{-- <script>
     $(function () {
 
         // Refresh button
@@ -302,6 +302,6 @@
         // Start stats animation
         updateStats();
     });
-</script>
+</script> --}}
 @endpush
 @endsection
