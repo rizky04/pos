@@ -80,7 +80,8 @@ class ProductController extends Controller
                 'string',
                 'max:50',
                 Rule::unique('products')->where(function ($query) {
-                    return $query->where('tenant_id', Auth::user()->tenant_id);
+                    return $query->where('tenant_id', Auth::user()->tenant_id)
+                                 ->whereNull('deleted_at');
                 })
             ],
             'nama' => 'required|string|max:200',
@@ -142,11 +143,10 @@ class ProductController extends Controller
         $validated = $request->validate([
             'kode' => [
                 'required',
-                Rule::unique('products')
-                    ->where(function ($query) use ($id) {
-                        return $query->where('tenant_id', Auth::user()->tenant_id)
-                                     ->where('id', '!=', $id);
-                    })
+                Rule::unique('products')->where(function ($query) {
+                    return $query->where('tenant_id', Auth::user()->tenant_id)
+                                 ->whereNull('deleted_at');
+                })
             ],
             'nama' => 'required|string|max:200',
             'category_id' => 'required|exists:categories,id',
