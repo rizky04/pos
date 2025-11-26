@@ -90,8 +90,9 @@ if ($request->filled('termin') && $request->termin !== 'all') {
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('suppliers')->where(function ($query) {
-                    return $query->where('tenant_id', Auth::user()->tenant_id);
+                Rule::unique('suppliers')->where(function ($q) {
+                    return $q->where('tenant_id', Auth::user()->tenant_id)
+                             ->whereNull('deleted_at');
                 })
             ],
             'nama_supplier' => 'required|string|max:200',
@@ -151,9 +152,9 @@ if ($request->filled('termin') && $request->termin !== 'all') {
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('suppliers')->where(function ($query) use ($id) {
-                    return $query->where('tenant_id', Auth::user()->tenant_id)
-                        ->where('id', '!=', $id);
+                Rule::unique('suppliers')->where(function ($q) {
+                    return $q->where('tenant_id', Auth::user()->tenant_id)
+                             ->whereNull('deleted_at');
                 })
             ],
             'nama_supplier' => 'required|string|max:200',

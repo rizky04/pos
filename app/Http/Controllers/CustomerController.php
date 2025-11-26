@@ -75,7 +75,8 @@ class CustomerController extends Controller
                 'string',
                 'max:50',
                 Rule::unique('customers')->where(function ($q) {
-                    return $q->where('tenant_id', Auth::user()->tenant_id);
+                    return $q->where('tenant_id', Auth::user()->tenant_id)
+                             ->whereNull('deleted_at');
                 })
             ],
             'nama' => 'required|string|max:200',
@@ -138,9 +139,9 @@ class CustomerController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('customers')->where(function ($q) use ($id) {
+                Rule::unique('customers')->where(function ($q) {
                     return $q->where('tenant_id', Auth::user()->tenant_id)
-                        ->where('id', '!=', $id);
+                             ->whereNull('deleted_at');
                 })
             ],
             'nama' => 'required|string|max:200',

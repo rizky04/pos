@@ -199,6 +199,10 @@
               <div style="font-size:11px">{{ Auth::user()->tenant->outlets->first()?->outlet_address ?? '-' }}</div>
               <hr>
           </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Customer</span>
+            <span id="r_customer">-</span>
+        </div>
 
           <div id="receiptItems"></div>
 
@@ -580,11 +584,6 @@ $('#r_customer').text(selectedCustomer ? selectedCustomer.text : '-');
         const total  = price * qty;
 
         itemHTML += `
-        <div class="d-flex justify-content-between">
-    <span>Customer</span>
-    <span id="r_customer"></span>
-</div>
-
             <div class="d-flex justify-content-between">
                 <div>${name} x${qty}</div>
                 <div>${formatRupiah(total)}</div>
