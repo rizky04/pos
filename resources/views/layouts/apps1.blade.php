@@ -712,37 +712,13 @@
     color: #6c757d !important;
     font-size: 0.875rem !important;
 }
-/* =============== LABEL UNTUK SIDEBAR (DESKTOP) =============== */
-.nav-label {
-    display: block;
-    font-size: 10px;
-    margin-top: 4px;
-    text-align: center;
-    color: #9ca3af;
-    font-weight: 500;
-}
 
-/* Active */
-.side-btn.active .nav-label {
-    color: #ff3b5c;
-}
-
-/* Hover */
-.side-btn:hover .nav-label {
-    color: #ff3b5c;
-}
-
-/* Center icon + text */
-.side-btn {
-    flex-direction: column;
-    gap: 2px;
-}
-
-/* ==================================
-   MOBILE MODE (BOTTOM NAV)
-   ================================== */
+/* ============================
+   BOTTOM NAV MODE (MOBILE)
+   ============================ */
 @media (max-width: 768px) {
 
+    /* Ubah sidebar jadi bottom navigation */
     .sidebar {
         position: fixed;
         bottom: 0;
@@ -751,92 +727,44 @@
         z-index: 9999;
         background: #ffffff;
         border-radius: 18px 18px 0 0;
-        padding: 8px 16px;
-        height: 70px;
+        padding: 10px 16px;
+        height: 64px;
         box-shadow: 0 -6px 20px rgba(0,0,0,0.12);
-        display: flex !important;
+
+        /* bottom nav layout */
+        flex-direction: row !important;
+        align-items: center;
         justify-content: space-around;
-        align-items: center;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 0 !important;
     }
 
-    /* Icon + Label */
-    .side-btn {
-        width: 64px !important;
-        height: 54px !important;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        gap: 2px;
-        color: #9ca3af;
-        font-size: 20px;
-    }
-
-    .side-btn.active {
-        background: #ff3b5c15;
-        color: #ff3b5c;
-    }
-
-    /* Label di mobile */
-    .nav-label {
-        font-size: 9px;
-        margin-top: 1px;
-        color: #9ca3af;
-    }
-
-    .side-btn.active .nav-label {
-        color: #ff3b5c;
-        font-weight: 600;
-    }
-
-    /* Hilangkan logo */
+    /* Hilangkan logo M di mobile */
     .sidebar-logo {
         display: none !important;
     }
 
-    /* Content kasih jarak biar tidak ketutup */
-    .pos-wrapper {
-        padding-bottom: 100px !important;
+    /* Button di bottom bar */
+    .side-btn {
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 14px;
+        font-size: 20px !important;
+        flex-shrink: 0;
     }
 
+    /* Spacer dihapus */
+    .side-spacer {
+        display: none !important;
+    }
 
+    /* Konten dikasih jarak biar tidak ketutup bottom nav */
+    .pos-wrapper {
+        padding-bottom: 80px !important;
+    }
 }
-  /* ===== FIX POSISI TOOLTIP SIDEBAR ===== */
-.tooltip.sidebar-tooltip {
-    margin-top: -8px !important; /* naikkan tooltip */
-}
-
-.tooltip.sidebar-tooltip .tooltip-inner {
-    background-color: #111827;
-    color: #f9fafb;
-    padding: 4px 10px;
-    font-size: 10px;
-    border-radius: 10px;
-}
-
-.tooltip.sidebar-tooltip.bs-tooltip-end .tooltip-arrow::before {
-    border-right-color: #111827 !important;
-}
-
 .sidebar a .nav-label {
-    text-decoration: none !important;
-}
-.tooltip-inner {
-    text-decoration: none !important;
-}
-
-.tooltip.sidebar-tooltip .tooltip-inner {
-    text-decoration: none !important;
-}
-.sidebar a {
-    text-decoration: none !important;
-}
-
-.side-btn {
-    text-decoration: none !important;
-}
-.tooltip-inner:hover {
     text-decoration: none !important;
 }
 

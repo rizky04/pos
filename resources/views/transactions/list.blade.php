@@ -34,7 +34,7 @@
             <select id="filterStatus">
                 <option value="all">Semua Status</option>
                 <option value="paid">Sudah Dibayar</option>
-                <option value="unpaid">Pending</option>
+                <option value="unpaid">Hutang</option>
                 <option value="void">Dibatalkan</option>
             </select>
         </div>
@@ -214,9 +214,9 @@
 
         data.forEach((t, i) => {
             const badge = {
-                paid: '<span class="badge-status badge-active">Paid</span>',
-                pending: '<span class="badge-status badge-pending">Pending</span>',
-                cancelled: '<span class="badge-status badge-nonactive">Cancelled</span>',
+                paid: '<span class="badge-status badge-active">Lunas</span>',
+                unpaid: '<span class="badge-status badge-nonactive">Hutang</span>',
+                void: '<span class="badge-status badge-nonactive">Batal</span>',
             }[t.status] || "-";
 
             tbody.append(`

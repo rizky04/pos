@@ -172,6 +172,15 @@
                 <span>Kembalian</span>
                 <strong id="changeAmount">Rp 0</strong>
             </div>
+
+                 <div class="summary-row align-items-center">
+                <span>Status Bayar</span>
+               <select id="status" class="form-select form-select-sm" style="width:70px;">
+                        <option value="paid" >Lunas</option>
+                        <option value="unpaid">Hutang</option>
+                        <option value="void">Batal</option>
+                    </select>
+            </div>
         </div>
 
         <button class="btn-charge" id="btnCharge">
@@ -550,6 +559,7 @@ $('#orderList .order-item').each(function () {
 });
 
 let payload = {
+    status: $('#status').val(),
     customer_id: $('#customerSelect').val() || null,
     items: items,
 

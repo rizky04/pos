@@ -59,6 +59,8 @@ class TransactionController extends Controller
             'total_after_ppn' => 'required',
             'pay_amount' => 'required',
             'change_amount' => 'required',
+            'status' => 'required',
+            'date_transaction' => 'required',
         ]);
 
         // buat nomor transaksi
@@ -78,7 +80,8 @@ class TransactionController extends Controller
             'total_after_ppn' => $request->total_after_ppn,
             'pay_amount' => $request->pay_amount,
             'change_amount' => $request->change_amount,
-            'status' => 'paid',
+            'status' => $request->status,
+            'date_transaction' => now(),
         ]);
 
         // SIMPAN ITEM
