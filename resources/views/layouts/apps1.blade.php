@@ -764,9 +764,7 @@
         padding-bottom: 80px !important;
     }
 }
-.sidebar a .nav-label {
-    text-decoration: none !important;
-}
+
 
     </style>
     <link rel="stylesheet" href="{{ asset('assets/assets/css/main.style.css') }}">
