@@ -29,6 +29,16 @@
            </div>
        </a>
 
+
+       <a href="{{ route('purchases.index') }}">
+        <div class="side-btn {{ request()->routeIs('purchases.*') ? 'active' : '' }}" data-bs-toggle="tooltip"
+            data-bs-placement="right" title="Pembelian">
+            <i class="bi bi-cart-plus"></i>
+            <span class="nav-label">Pembelian</span>
+        </div>
+    </a>
+
+
         <!-- MASTER CUSTOMER ACTIVE -->
         <a href="{{ route('customers.index') }}">
             <div class="side-btn {{ request()->routeIs('customers.*') ? 'active' : '' }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Master Customer">

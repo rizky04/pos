@@ -195,6 +195,7 @@
 </div>
 
 @push('scripts')
+
 <script>
     // Dummy data pembelian
     let purchases = [

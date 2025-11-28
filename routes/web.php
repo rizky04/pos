@@ -111,11 +111,12 @@ Route::prefix('products')->group(function () {
 });
 
 Route::prefix('purchases')->group(function () {
-    Route::get('/', [PurchaseController::class, 'getData']);
-    Route::post('/', [PurchaseController::class, 'store']);
-    Route::get('/{id}', [PurchaseController::class, 'show']);
-    Route::put('/{id}', [PurchaseController::class, 'update']);
-    Route::delete('/{id}', [PurchaseController::class, 'destroy']);
+    Route::get('/', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('/data', [PurchaseController::class, 'getData'])->name('purchases.data');
+    Route::post('/', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::get('/{id}', [PurchaseController::class, 'show'])->name('purchases.show');
+    Route::put('/{id}', [PurchaseController::class, 'update'])->name('purchases.update');
+    Route::delete('/{id}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
 });
 
 
