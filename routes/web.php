@@ -19,6 +19,7 @@ use App\Http\Controllers\Select2Controller;
 use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\SupplierController;
@@ -109,6 +110,13 @@ Route::prefix('products')->group(function () {
     Route::get('/generate/code', [ProductController::class, 'generateCode'])->name('products.generate.code');
 });
 
+Route::prefix('purchases')->group(function () {
+    Route::get('/', [PurchaseController::class, 'getData']);
+    Route::post('/', [PurchaseController::class, 'store']);
+    Route::get('/{id}', [PurchaseController::class, 'show']);
+    Route::put('/{id}', [PurchaseController::class, 'update']);
+    Route::delete('/{id}', [PurchaseController::class, 'destroy']);
+});
 
 
     // routes/web.php
