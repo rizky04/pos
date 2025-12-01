@@ -11,6 +11,7 @@ use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PurchaseController extends Controller
 {
@@ -69,6 +70,13 @@ class PurchaseController extends Controller
   public function store(Request $request)
 {
     $request->validate([
+        'kode' => [
+            'required',
+            Rule::unique('purchases')->where(function ($query) {
+                return $query->where('tenant_id', Auth::user()->tenant_id)
+                             ->whereNull('deleted_at');
+            })
+        ],
         'invoice' => 'required|string|unique:purchases,invoice',
         'supplier' => 'required|string',
         'date' => 'required|date',
@@ -108,7 +116,7 @@ class PurchaseController extends Controller
         $purchase = Purchase::create([
             'tenant_id' => $tenantId,
             'supplier_id' => $supplier->id,
-            'kode' => $this->generateKode(),
+            'kode' => $this->generateCode(),
             'invoice' => $request->invoice,
             'tanggal' => $request->date,
             'jatuh_tempo' => $request->due_date,
@@ -266,5 +274,25 @@ class PurchaseController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function generateCode()
+    {
+        $last = Purchase::where('tenant_id', Auth::user()->tenant_id)
+            ->orderBy('kode', 'desc')
+            ->first();
+
+        if (!$last) {
+            $newCode = 'PURC-001';
+        } else {
+            $lastNumber = (int) substr($last->kode, -3);
+            $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+            $newCode = 'PURC-' . $newNumber;
+        }
+
+        return response()->json([
+            'success' => true,
+            'code' => $newCode
+        ]);
     }
 }
