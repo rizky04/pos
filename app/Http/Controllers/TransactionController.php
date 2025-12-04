@@ -60,7 +60,7 @@ class TransactionController extends Controller
             'pay_amount' => 'required',
             'change_amount' => 'required',
             'status' => 'required',
-            'date_transaction' => 'required',
+            // 'date_transaction' => 'required',
         ]);
 
         // buat nomor transaksi
