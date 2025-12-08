@@ -23,6 +23,7 @@ class Purchase extends Model
         'metode_bayar',
         'catatan',
         'ppn_percent',
+        'discount_transaction',
         'subtotal',
         'total_ppn',
         'grand_total',
@@ -46,4 +47,10 @@ class Purchase extends Model
     {
         return $this->hasMany(PurchaseItem::class);
     }
+
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
+
 }

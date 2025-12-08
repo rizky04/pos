@@ -67,97 +67,107 @@ class PurchaseController extends Controller
     /**
      * STORE PEMBELIAN
      */
-  public function store(Request $request)
+public function store(Request $request)
 {
+
     $request->validate([
-        'kode' => [
-            'required',
-            Rule::unique('purchases')->where(function ($query) {
-                return $query->where('tenant_id', Auth::user()->tenant_id)
-                             ->whereNull('deleted_at');
-            })
-        ],
         'invoice' => 'required|string|unique:purchases,invoice',
-        'supplier' => 'required|string',
+        'supplier_id' => 'required|exists:suppliers,id',
         'date' => 'required|date',
-        'metode' => 'required|string',
         'status' => 'required|string',
-        'ppnPercent' => 'required|numeric|min:0|max:20',
+        'method' => 'required|string',
         'items' => 'required|array|min:1',
-        'items.*.name' => 'required|string',
+        'items.*.product_id' => 'required|exists:products,id',
         'items.*.qty' => 'required|numeric|min:1',
         'items.*.price' => 'required|numeric|min:1',
+        'items.*.discount_percent' => 'nullable|numeric|min:0|max:100',
+        'ppnPercent' => 'nullable|numeric|min:0|max:20',
+        'discount_transaction' => 'nullable|numeric|min:0',
     ]);
 
     DB::beginTransaction();
     try {
+
         $tenantId = Auth::user()->tenant_id;
 
-        /**
-         * Supplier handling: frontend hanya menyimpan nama supplier
-         * kita buat supplier otomatis kalau belum ada
-         */
-        $supplier = Supplier::firstOrCreate(
-            ['tenant_id' => $tenantId, 'nama' => $request->supplier],
-            ['alamat' => null]
-        );
-
-        /** HITUNG SUBTOTAL */
         $subtotal = 0;
+
         foreach ($request->items as $item) {
-            $subtotal += $item['qty'] * $item['price'];
+            $line = $item['qty'] * $item['price'];
+
+            $discVal = $line * ($item['discount_percent'] / 100);
+            $line = $line - $discVal;
+
+            $subtotal += $line;
         }
 
-        $ppnPercent = $request->ppnPercent;
-        $totalPpn = intval(($subtotal * $ppnPercent) / 100);
-        $grandTotal = $subtotal + $totalPpn;
+        $ppn = intval($request->ppnPercent ?? 11);
+        $discountTransaction = intval($request->discount_transaction ?? 0);
 
-        /** SIMPAN PURCHASE */
+        $subtotalAfterDiscount = max(0, $subtotal - $discountTransaction);
+
+        $ppnValue = intval(($subtotalAfterDiscount * $ppn) / 100);
+        $grandTotal = $subtotalAfterDiscount + $ppnValue;
+
+        // dd($discountTransaction);
+
         $purchase = Purchase::create([
             'tenant_id' => $tenantId,
-            'supplier_id' => $supplier->id,
-            'kode' => $this->generateCode(),
+            'supplier_id' => $request->supplier_id,
+            'kode' => $this->generateCodeOnly(), // custom method below
             'invoice' => $request->invoice,
             'tanggal' => $request->date,
             'jatuh_tempo' => $request->due_date,
             'status_pembelian' => $request->status,
-            'metode_bayar' => $request->metode,
+            'metode_bayar' => $request->method,
             'catatan' => $request->note,
-            'ppn_percent' => $ppnPercent,
+            'ppn_percent' => $ppn,
             'subtotal' => $subtotal,
-            'total_ppn' => $totalPpn,
+            'discount_transaction' => $discountTransaction,
+            'total_ppn' => $ppnValue,
             'grand_total' => $grandTotal,
         ]);
 
-        /** ITEMS */
-        foreach ($request->items as $i) {
+        foreach ($request->items as $item) {
+
+            $line = $item['qty'] * $item['price'];
+            $discVal = $line * ($item['discount_percent'] / 100);
+
             PurchaseItem::create([
                 'tenant_id' => $tenantId,
                 'purchase_id' => $purchase->id,
-                'product_id' => null, // Frontend tidak pakai product ID
-                'nama_barang' => $i['name'],
-                'qty' => $i['qty'],
-                'harga_beli' => $i['price'],
-                'subtotal' => $i['qty'] * $i['price']
+                'product_id' => $item['product_id'],
+                'nama_barang' => Product::find($item['product_id'])->nama,
+                'qty' => $item['qty'],
+                'discount_percent' => $item['discount_percent'],
+                'harga_beli' => $item['price'],
+                'subtotal' => $line - $discVal,
             ]);
+
+            // Update stock product
+            Product::where('id', $item['product_id'])
+                    ->increment('stok', $item['qty']);
         }
 
         DB::commit();
 
         return response()->json([
             'success' => true,
-            'message' => 'Pembelian berhasil disimpan!',
-            'data' => $purchase->load('items')
+            'message' => 'Pembelian berhasil disimpan',
+            'data' => $purchase->load(['items', 'supplier'])
         ]);
 
     } catch (\Exception $e) {
         DB::rollBack();
+
         return response()->json([
             'success' => false,
-            'message' => 'Gagal menyimpan pembelian: ' . $e->getMessage()
+            'message' => $e->getMessage()
         ], 500);
     }
 }
+
+
 
 
 
@@ -166,8 +176,7 @@ class PurchaseController extends Controller
      */
     public function show($id)
     {
-        $data = Purchase::with(['supplier', 'items'])
-            ->where('tenant_id', Auth::user()->tenant_id)
+        $data = Purchase::with(['supplier', 'items.product'])
             ->findOrFail($id);
 
         return response()->json([
@@ -180,73 +189,105 @@ class PurchaseController extends Controller
     /**
      * UPDATE PEMBELIAN
      */
-    public function update(Request $request, $id)
-    {
-        $pembelian = Purchase::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
+   public function update(Request $request, $id)
+{
 
-        $request->validate([
-            'invoice' => "required|string|max:255|unique:pembelians,invoice,{$pembelian->id}",
-            'tanggal' => 'required|date',
-            'items' => 'required|array|min:1',
-            'items.*.nama_barang' => 'required',
-            'items.*.qty' => 'required|integer|min:1',
-            'items.*.harga_beli' => 'required|integer|min:0',
+
+    $purchase = Purchase::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
+
+    $request->validate([
+        'invoice' => "required|string|max:255|unique:purchases,invoice,{$purchase->id}",
+        'supplier_id' => 'required|exists:suppliers,id',
+        'date' => 'required|date',
+        'items' => 'required|array|min:1',
+        'items.*.product_id' => 'required|exists:products,id',
+        'items.*.qty' => 'required|numeric|min:1',
+        'items.*.price' => 'required|numeric|min:1',
+        'items.*.discount_percent' => 'nullable|numeric|min:0|max:100',
+        'ppnPercent' => 'nullable|numeric|min:0|max:30',
+        'discountTransaction' => 'nullable|numeric|min:0',
+    ]);
+
+    DB::beginTransaction();
+    try {
+
+        $tenantId = Auth::user()->tenant_id;
+
+        /** Restore stock old items */
+        foreach ($purchase->items as $oldItem) {
+            Product::where('id', $oldItem->product_id)
+                ->decrement('stok', $oldItem->qty);
+        }
+
+        /** Delete old items */
+        PurchaseItem::where('purchase_id', $purchase->id)->delete();
+
+        $subtotal = 0;
+
+        foreach ($request->items as $item) {
+
+            $line = $item['qty'] * $item['price'];
+            $discVal = $line * ($item['discount_percent'] / 100);
+            $line = $line - $discVal;
+
+            $subtotal += $line;
+
+            PurchaseItem::create([
+                'tenant_id' => $tenantId,
+                'purchase_id' => $purchase->id,
+                'product_id' => $item['product_id'],
+                'nama_barang' => Product::find($item['product_id'])->nama,
+                'qty' => $item['qty'],
+                'discount_percent' => $item['discount_percent'],
+                'harga_beli' => $item['price'],
+                'subtotal' => $line,
+            ]);
+
+            Product::where('id', $item['product_id'])
+                    ->increment('stok', $item['qty']);
+        }
+
+        $ppn = intval($request->ppnPercent ?? 11);
+        $discountTransaction = intval($request->discount_transaction ?? 0);
+
+        $subtotalAfterDiscount = max(0, $subtotal - $discountTransaction);
+
+        $ppnValue = intval(($subtotalAfterDiscount * $ppn) / 100);
+        $grandTotal = $subtotalAfterDiscount + $ppnValue;
+
+        $purchase->update([
+            'supplier_id' => $request->supplier_id,
+            'invoice' => $request->invoice,
+            'tanggal' => $request->date,
+            'jatuh_tempo' => $request->due_date,
+            'status_pembelian' => $request->status,
+            'metode_bayar' => $request->method,
+            'catatan' => $request->note,
+            'discount_transaction' => $discountTransaction,
+            'ppn_percent' => $ppn,
+            'subtotal' => $subtotal,
+            'total_ppn' => $ppnValue,
+            'grand_total' => $grandTotal,
         ]);
 
-        DB::beginTransaction();
+        DB::commit();
 
-        try {
-            $subtotal = collect($request->items)->sum(fn($i) => $i['qty'] * $i['harga_beli']);
-            $ppnPercent = intval($request->ppn_percent ?? 11);
-            $totalPpn = $subtotal * ($ppnPercent / 100);
-            $grandTotal = $subtotal + $totalPpn;
+        return response()->json([
+            'success' => true,
+            'message' => 'Pembelian berhasil diperbarui',
+            'data' => $purchase->load(['items', 'supplier'])
+        ]);
 
-            // Update pembelian
-            $pembelian->update([
-                'id_supplier' => $request->id_supplier,
-                'invoice' => $request->invoice,
-                'tanggal' => $request->tanggal,
-                'jatuh_tempo' => $request->jatuh_tempo,
-                'status_pembelian' => $request->status_pembelian,
-                'metode_bayar' => $request->metode_bayar,
-                'catatan' => $request->catatan,
-                'ppn_percent' => $ppnPercent,
-                'subtotal' => $subtotal,
-                'total_ppn' => $totalPpn,
-                'grand_total' => $grandTotal,
-            ]);
-
-            // Hapus semua item lama
-            PurchaseItem::where('pembelian_id', $pembelian->id)->delete();
-
-            // Tambahkan item baru
-            foreach ($request->items as $item) {
-                PurchaseItem::create([
-                    'pembelian_id' => $pembelian->id,
-                    'product_id' => $item['product_id'] ?? null,
-                    'nama_barang' => $item['nama_barang'],
-                    'qty' => $item['qty'],
-                    'harga_beli' => $item['harga_beli'],
-                    'subtotal' => $item['qty'] * $item['harga_beli'],
-                ]);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data pembelian berhasil diperbarui!',
-                'data' => $pembelian->load('items')
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
+
 
 
     /**
@@ -276,23 +317,27 @@ class PurchaseController extends Controller
         }
     }
 
-    public function generateCode()
-    {
-        $last = Purchase::where('tenant_id', Auth::user()->tenant_id)
-            ->orderBy('kode', 'desc')
-            ->first();
+    private function generateCodeOnly()
+{
+    $last = Purchase::where('tenant_id', Auth::user()->tenant_id)
+        ->orderBy('kode', 'desc')->first();
 
-        if (!$last) {
-            $newCode = 'PURC-001';
-        } else {
-            $lastNumber = (int) substr($last->kode, -3);
-            $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-            $newCode = 'PURC-' . $newNumber;
-        }
-
-        return response()->json([
-            'success' => true,
-            'code' => $newCode
-        ]);
+    if (!$last) {
+        return "PURC-001";
     }
+
+    $no = (int) substr($last->kode, -3);
+    return "PURC-" . str_pad($no + 1, 3, "0", STR_PAD_LEFT);
+}
+
+public function print($id)
+{
+    $data = Purchase::with(['supplier', 'items.product'])
+        ->where('tenant_id', Auth::user()->tenant_id)
+        ->findOrFail($id);
+
+    return view('purchase.print', compact('data'));
+}
+
+
 }

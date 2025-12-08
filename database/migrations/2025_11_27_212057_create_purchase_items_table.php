@@ -14,17 +14,24 @@ return new class extends Migration
         Schema::create('purchase_items', function (Blueprint $table) {
              $table->uuid('id')->primary();
 
+             $table->uuid('tenant_id')->index();
+
             $table->uuid('purchase_id')->index();
             $table->uuid('product_id')->nullable()->index(); // Kalau Anda pakai master barang
 
             $table->string('nama_barang'); // fallback jika product_id null
             $table->integer('qty');
+
+            $table->bigInteger('discount_percent');
+
             $table->bigInteger('harga_beli');
             $table->bigInteger('subtotal');
 
             $table->timestamps();
             // FOREIGN KEY
     $table->foreign('purchase_id')->references('id')->on('purchases')->onDelete('cascade');
+    $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+    $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
         });
     }
 

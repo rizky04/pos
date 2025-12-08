@@ -236,13 +236,7 @@
                 </div>
 
                 <div class="text-end mt-2">
-                    <b id="detailSubtotal"></b>
-                    <br>
-                    <b id="detailPpn"></b>
-                    <br>
-                    <b id="detailDiscount"></b>
-                    <br>
-                     <b id="detailTotal"></b>
+                    <b id="detailTotal"></b>
                 </div>
             </div>
         </div>
@@ -274,114 +268,16 @@ function loadPurchases() {
     $.ajax({
         url: "/purchases/data",
         method: "GET",
-        data: {
-            search: $("#searchPurchase").val(),
-            status: $("#filterStatus").val(),
-            date_from: $("#dateFrom").val(),
-            date_to: $("#dateTo").val(),
-            page: pagination.currentPage,
-            per_page: pagination.perPage
-        },
+        data: { per_page: 100 },
         success: function(res) {
-
-            const paginated = res.data; // <= ambil wrapper pagination Laravel
-
-            renderPurchaseTable(paginated.data);
-            renderPurchasePagination(paginated);
+            purchases = res.data.data;
+            applyFilters();
+        },
+        error: function() {
+            Swal.fire("Error", "Gagal mengambil data pembelian", "error");
         }
     });
 }
-
-function renderPurchaseTable(data) {
-    let tbody = $("#purchaseTable tbody");
-    tbody.empty();
-
-    if (!data.length) {
-        $("#emptyState").removeClass("d-none");
-        return;
-    }
-
-    $("#emptyState").addClass("d-none");
-
-    data.forEach((p, i) => {
-        let supplier = p.supplier ? p.supplier.nama_supplier : '-';
-        let total = parseFloat(p.grand_total ?? 0);
-
-        let badge = {
-            draft: '<span class="badge bg-secondary">Draft</span>',
-            posted: '<span class="badge bg-info">Posted</span>',
-            paid: '<span class="badge bg-success">Lunas</span>',
-            unpaid: '<span class="badge bg-warning">Hutang</span>',
-        }[p.status_pembelian] || '-';
-
-        tbody.append(`
-            <tr>
-                <td>${i + 1}</td>
-                <td>${p.tanggal}</td>
-                <td><strong>${p.invoice}</strong></td>
-                <td>${supplier}</td>
-                <td>${p.jatuh_tempo ?? '-'}</td>
-                <td>${p.items.length} Item</td>
-                <td>Rp ${total.toLocaleString()}</td>
-                <td>${badge}</td>
-                <td class="text-end">
-                    <button class="btn btn-sm btn-view" data-id="${p.id}"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-sm btn-edit" data-id="${p.id}"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-sm btn-print" data-id="${p.id}"><i class="bi bi-printer"></i></button>
-                    <button class="btn btn-sm btn-delete" data-id="${p.id}"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
-        `);
-    });
-}
-function renderPurchasePagination(res) {
-    const pag = $("#pagination");
-    const info = $("#paginationInfo");
-    pag.empty();
-
-    if (res.total === 0) {
-        info.text("Tidak ada data.");
-        return;
-    }
-
-    info.text(
-        `Menampilkan ${res.from} - ${res.to} dari ${res.total} data (Hal ${res.current_page} / ${res.last_page})`
-    );
-
-    // Prev
-    pag.append(`
-        <li class="page-item ${res.current_page == 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${res.current_page - 1}">«</a>
-        </li>
-    `);
-
-    // Page numbers
-    for (let p = 1; p <= res.last_page; p++) {
-        pag.append(`
-            <li class="page-item ${p == res.current_page ? 'active' : ''}">
-                <a class="page-link" href="#" data-page="${p}">${p}</a>
-            </li>
-        `);
-    }
-
-    // Next
-    pag.append(`
-        <li class="page-item ${res.current_page == res.last_page ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${res.current_page + 1}">»</a>
-        </li>
-    `);
-}
-$("#pagination").on("click", ".page-link", function(e) {
-    e.preventDefault();
-
-    const page = $(this).data("page");
-    if (!page || page < 1) return;
-
-    pagination.currentPage = page;
-    loadPurchases();
-});
-
-
 
 function loadSuppliers() {
     $.get("/select/suppliers", function(res) {
@@ -518,43 +414,11 @@ function openEditPurchaseModal(id) {
     });
 }
 
-// function savePurchase() {
-//     const id = $("#purchaseId").val();
-
-//     const payload = {
-//         id,
-//         invoice: $("#noInvoice").val(),
-//         supplier_id: $("#supplier").val(),
-//         date: $("#tgl").val(),
-//         due_date: $("#jatuhTempo").val(),
-//         status: $("#statusPembelian").val(),
-//         method: $("#metodeBayar").val(),
-//         note: $("#catatan").val(),
-//         ppn_percent: $("#ppnPercent").val(),
-//         discount_transaction: $("#discountTransaction").val(),
-//         items: []
-//     };
-
-//     $("#purchaseItemsTable tbody tr").each(function() {
-//         payload.items.push({
-//             product_id: $(this).find(".item-product").val(),
-//             qty: $(this).find(".item-qty").val(),
-//             price: $(this).find(".item-price").val(),
-//             discount_percent: $(this).find(".item-disc").val()
-//         });
-//     });
-
-//     $.post("/purchases/store", payload, function() {
-//         Swal.fire("Sukses", "Pembelian berhasil disimpan", "success");
-//         purchaseModal.hide();
-//         loadPurchases();
-//     });
-// }
-
 function savePurchase() {
     const id = $("#purchaseId").val();
 
     const payload = {
+        id,
         invoice: $("#noInvoice").val(),
         supplier_id: $("#supplier").val(),
         date: $("#tgl").val(),
@@ -562,7 +426,7 @@ function savePurchase() {
         status: $("#statusPembelian").val(),
         method: $("#metodeBayar").val(),
         note: $("#catatan").val(),
-        ppnPercent: $("#ppnPercent").val(),
+        ppn_percent: $("#ppnPercent").val(),
         discount_transaction: $("#discountTransaction").val(),
         items: []
     };
@@ -576,37 +440,105 @@ function savePurchase() {
         });
     });
 
-    let url = "";
-    let method = "";
-
-    if (id) {
-        // EDIT
-        url = `/purchases/${id}`;
-        method = "PUT";
-    } else {
-        // NEW
-        url = `/purchases/store`;
-        method = "POST";
-    }
-
-    $.ajax({
-        url: url,
-        method: method,
-        data: payload,
-        success: function(res) {
-            Swal.fire("Sukses", id ? "Pembelian berhasil diperbarui" : "Pembelian berhasil disimpan", "success");
-            purchaseModal.hide();
-            loadPurchases();
-        },
-        error: function(err) {
-            console.log(err);
-            Swal.fire("Error", "Gagal menyimpan data", "error");
-        }
+    $.post("/purchases/store", payload, function() {
+        Swal.fire("Sukses", "Pembelian berhasil disimpan", "success");
+        purchaseModal.hide();
+        loadPurchases();
     });
 }
 
+/* ============================================================
+   FILTERING + PAGINATION
+============================================================ */
+function applyFilters() {
+    const q = ($("#searchPurchase").val() || "").toLowerCase();
+    const stat = $("#filterStatus").val();
+    const df = $("#dateFrom").val();
+    const dt = $("#dateTo").val();
 
+    pagination.filteredData = purchases.filter(p => {
+        if (df && p.tanggal < df) return false;
+        if (dt && p.tanggal > dt) return false;
 
+        if (stat && p.status_pembelian !== stat) return false;
+
+        if (q) {
+            const supplierName = p.supplier?.nama_supplier?.toLowerCase() ?? "";
+            const combined = (p.invoice + " " + supplierName).toLowerCase();
+            if (!combined.includes(q)) return false;
+        }
+
+        return true;
+    });
+
+    pagination.currentPage = 1;
+    renderPage();
+}
+
+function renderPage() {
+    const tbody = $("#purchaseTable tbody");
+    tbody.empty();
+
+    const start = (pagination.currentPage - 1) * pagination.perPage;
+    const end = start + pagination.perPage;
+    const rows = pagination.filteredData.slice(start, end);
+
+    $("#emptyState").toggleClass("d-none", rows.length > 0);
+
+    rows.forEach((p, index) => {
+        const supplierName = p.supplier?.nama_supplier ?? "-";
+        const jatuhTempo = p.jatuh_tempo ?? "-";
+        const totalAmount = parseFloat(p.grand_total ?? 0);
+        const itemCount = (p.items || []).length;
+
+        const statusBadge =
+            p.status_pembelian === "draft" ? `<span class="badge bg-secondary">Draft</span>` :
+            p.status_pembelian === "posted" && p.status_pembelian === "unpaid"
+                ? `<span class="badge bg-warning">Posted/Hutang</span>` :
+            p.status_pembelian === "paid"
+                ? `<span class="badge bg-success">Lunas</span>` :
+                `<span class="badge bg-danger">Hutang</span>`;
+
+        tbody.append(`
+            <tr>
+                <td>${start + index + 1}</td>
+                <td>${p.tanggal}</td>
+                <td><strong>${p.invoice}</strong></td>
+                <td>${supplierName}</td>
+                <td>${jatuhTempo}</td>
+                <td>${itemCount} Item</td>
+                <td>${formatRupiah(totalAmount)}</td>
+                <td>${statusBadge}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-view" data-id="${p.id}"><i class="bi bi-eye"></i></button>
+                    <button class="btn btn-sm btn-edit" data-id="${p.id}"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-print" data-id="${p.id}"><i class="bi bi-printer"></i></button>
+                    <button class="btn btn-sm btn-delete" data-id="${p.id}"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+        `);
+    });
+
+    renderPagination();
+}
+
+function renderPagination() {
+    const pag = $("#pagination");
+    pag.empty();
+
+    const totalPages = Math.ceil(pagination.filteredData.length / pagination.perPage);
+    if (totalPages <= 1) return;
+
+    for (let i = 1; i <= totalPages; i++) {
+        pag.append(`
+            <li class="page-item ${pagination.currentPage === i ? 'active' : ''}">
+                <a class="page-link page-num" data-page="${i}">${i}</a>
+            </li>
+        `);
+    }
+
+    $("#paginationInfo").text(`Menampilkan halaman ${pagination.currentPage} dari ${totalPages}`);
+}
 
 /* ============================================================
    EVENT HANDLERS
@@ -680,9 +612,6 @@ $(function() {
             });
 
             $("#detailItems").html(itemsHTML);
-            $("#detailSubtotal").text(`Subtotal: ${formatRupiah(p.subtotal)}`);
-            $("#detailPpn").text(`ppn: ${p.ppn_percent}%`);
-            $("#detailDiscount").text(`diskon: ${formatRupiah(p.discount_transaction)}`);
             $("#detailTotal").text(`Grand Total: ${formatRupiah(p.grand_total)}`);
 
             detailModal.show();
@@ -724,11 +653,14 @@ $(function() {
         });
     });
 
-    $("#searchPurchase, #filterStatus, #dateFrom, #dateTo").on("input change", function() {
-    pagination.currentPage = 1;
-    loadPurchases();
-});
+    // PAGINATION CLICK
+    $("#pagination").on("click", ".page-num", function() {
+        pagination.currentPage = parseInt($(this).data("page"));
+        renderPage();
+    });
 
+    // FILTER ON CHANGE
+    $("#searchPurchase, #filterStatus, #dateFrom, #dateTo").on("input change", applyFilters);
 });
 
 </script>

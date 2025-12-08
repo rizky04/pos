@@ -33,12 +33,19 @@ return new class extends Migration
 
             // PPN
             $table->integer('ppn_percent')->default(11);
+
+            $table->bigInteger('discount_transaction')->default(0);
+
             $table->bigInteger('subtotal')->default(0);
             $table->bigInteger('total_ppn')->default(0);
             $table->bigInteger('grand_total')->default(0);
 
             $table->softDeletes();
             $table->timestamps();
+
+            // FOREIGN KEY
+            $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
         });
     }
 

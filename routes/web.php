@@ -22,6 +22,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\SelectController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UnitController;
@@ -111,12 +112,26 @@ Route::prefix('products')->group(function () {
 });
 
 Route::prefix('purchases')->group(function () {
+   // List & Load Data
     Route::get('/', [PurchaseController::class, 'index'])->name('purchases.index');
     Route::get('/data', [PurchaseController::class, 'getData'])->name('purchases.data');
-    Route::post('/', [PurchaseController::class, 'store'])->name('purchases.store');
-    Route::get('/{id}', [PurchaseController::class, 'show'])->name('purchases.show');
+
+    // Store New Purchase
+    Route::post('/store', [PurchaseController::class, 'store'])->name('purchases.store');
+
+    // Detail Purchase for Editing
+    Route::get('/{id}/detail', [PurchaseController::class, 'show'])->name('purchases.detail');
+
+    // Update Purchase (PUT)
     Route::put('/{id}', [PurchaseController::class, 'update'])->name('purchases.update');
-    Route::delete('/{id}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
+
+    // Delete Purchase
+    Route::delete('/{id}/delete', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
+
+    // Print Purchase
+Route::get('/{id}/print', [PurchaseController::class, 'print'])->name('purchases.print');
+
+
 });
 
 
@@ -131,4 +146,7 @@ Route::prefix('purchases')->group(function () {
     Route::get('/transactions', [TransactionController::class, 'getData'])->name('transactions.data');
     Route::get('/transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
     Route::get('/list/transactions', [TransactionController::class, 'list'])->name('list.transactions');
+
+    Route::get('/select/products', [SelectController::class, 'product']);
+Route::get('/select/suppliers', [SelectController::class, 'supplier']);
 });

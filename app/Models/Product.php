@@ -43,6 +43,11 @@ class Product extends Model
         return $this->belongsTo(Unit::class);
     }
 
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
+
     /** SCOPE */
     public function scopeActive($query)
     {

@@ -16,6 +16,7 @@ class PurchaseItem extends Model
         'purchase_id',
         'product_id',
         'nama_barang',
+        'discount_percent',
         'qty',
         'harga_beli',
         'subtotal',
