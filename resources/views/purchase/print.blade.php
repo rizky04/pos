@@ -51,7 +51,15 @@
 </table>
 
 <h3 style="text-align:right; margin-top:10px;">
+    Total: Rp {{ number_format($data->subtotal,0,",",".") }}
+    <br>
+    PPN: Rp {{ number_format($data->ppn_percent,0,",",".") }}
+    <br>
+    Discount Transaksi: Rp {{ number_format($data->discount_transaction,0,",",".") }}
+    <br>
+    <strong>
     Grand Total: Rp {{ number_format($data->grand_total,0,",",".") }}
+</strong>
 </h3>
 
 <script>
