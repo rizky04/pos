@@ -10,6 +10,12 @@
                 <div class="page-header-sub">Catat pembelian dari supplier & update stok secara rapi.</div>
             </div>
             <div class="d-flex align-items-center gap-2">
+                {{-- <a href="{{ route('dashboard.hutang') }}" class="btn-soft light">
+                    <i class="fa-solid fa-grip"></i> Dashboard Hutang
+                </a> --}}
+                <a href="{{ route('laporan.hutang') }}" class="btn-soft light">
+                    <i class="fa-solid fa-chart-line"></i> Laporan Hutang
+                </a>
                 <button class="btn-soft light" id="btnRefresh">
                     <i class="bi bi-arrow-clockwise"></i> Reload
                 </button>
@@ -206,115 +212,187 @@
         </div>
     </div>
     <!-- MODAL DETAIL PEMBELIAN -->
-<div class="modal fade" id="detailPurchaseModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detail Pembelian</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <div id="detailContent"></div>
-
-                <hr>
-
-                <h6>Daftar Item</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Nama Barang</th>
-                                <th class="text-end">Qty</th>
-                                <th class="text-end">Harga</th>
-                                <th class="text-end">Disc (%)</th>
-                                <th class="text-end">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody id="detailItems"></tbody>
-                    </table>
+    <div class="modal fade" id="detailPurchaseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Pembelian</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
-                <div class="text-end mt-2">
-                    <b id="detailSubtotal"></b>
-                    <br>
-                    <b id="detailPpn"></b>
-                    <br>
-                    <b id="detailDiscount"></b>
-                    <br>
-                     <b id="detailTotal"></b>
+                <div class="modal-body">
+                    <div id="detailContent"></div>
+
+                    <hr>
+
+                    <h6>Daftar Item</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th class="text-end">Qty</th>
+                                    <th class="text-end">Harga</th>
+                                    <th class="text-end">Disc (%)</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailItems"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-end mt-2">
+                        <b id="detailSubtotal"></b>
+                        <br>
+                        <b id="detailPpn"></b>
+                        <br>
+                        <b id="detailDiscount"></b>
+                        <br>
+                        <b id="detailTotal"></b>
+                    </div>
+                    <hr>
+                    <h6>History Pembayaran</h6>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Metode</th>
+                                    <th>Nominal</th>
+                                    <th>Sisa Hutang</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentHistoryBody"></tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-</div>
     <!-- END MAIN CONTENT -->
 
-   @push('scripts')
-<script>
+    <!-- MODAL PEMBAYARAN -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
 
-/* ============================================================
-   GLOBAL VARIABLES
-============================================================ */
-let purchases = [];
-let supplierList = [];
-let productList = [];
-let purchaseModal;
+                <div class="modal-header">
+                    <h5 class="modal-title">Pembayaran Hutang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-let pagination = {
-    currentPage: 1,
-    perPage: 10,
-    filteredData: []
-};
+                <div class="modal-body">
 
-/* ============================================================
-   LOAD DATA
-============================================================ */
-function loadPurchases() {
-    $.ajax({
-        url: "/purchases/data",
-        method: "GET",
-        data: {
-            search: $("#searchPurchase").val(),
-            status: $("#filterStatus").val(),
-            date_from: $("#dateFrom").val(),
-            date_to: $("#dateTo").val(),
-            page: pagination.currentPage,
-            per_page: pagination.perPage
-        },
-        success: function(res) {
+                    <input type="hidden" id="paymentPurchaseId">
 
-            const paginated = res.data; // <= ambil wrapper pagination Laravel
+                    <div class="mb-2">
+                        <label class="form-label">Tanggal Bayar</label>
+                        <input type="date" id="paymentDate" class="form-control" required>
+                    </div>
 
-            renderPurchaseTable(paginated.data);
-            renderPurchasePagination(paginated);
-        }
-    });
-}
+                    <div class="mb-2">
+                        <label class="form-label">Metode Bayar</label>
+                        <select id="paymentMethod" class="form-select">
+                            <option value="Cash">Cash</option>
+                            <option value="Transfer">Transfer</option>
+                            <option value="Giro">Giro</option>
+                        </select>
+                    </div>
 
-function renderPurchaseTable(data) {
-    let tbody = $("#purchaseTable tbody");
-    tbody.empty();
+                    <div class="mb-2">
+                        <label class="form-label">Nominal Bayar</label>
+                        <input type="number" id="paymentAmount" class="form-control" required>
+                        <small id="paymentRemainingInfo" class="text-muted"></small>
+                    </div>
 
-    if (!data.length) {
-        $("#emptyState").removeClass("d-none");
-        return;
-    }
+                    <div class="mb-2">
+                        <label class="form-label">No. Referensi</label>
+                        <input type="text" id="paymentReference" class="form-control" placeholder="Opsional">
+                    </div>
 
-    $("#emptyState").addClass("d-none");
+                    <div class="mb-2">
+                        <label class="form-label">Catatan</label>
+                        <input type="text" id="paymentNote" class="form-control" placeholder="Opsional">
+                    </div>
 
-    data.forEach((p, i) => {
-        let supplier = p.supplier ? p.supplier.nama_supplier : '-';
-        let total = parseFloat(p.grand_total ?? 0);
+                </div>
 
-        let badge = {
-            draft: '<span class="badge bg-secondary">Draft</span>',
-            posted: '<span class="badge bg-info">Posted</span>',
-            paid: '<span class="badge bg-success">Lunas</span>',
-            unpaid: '<span class="badge bg-warning">Hutang</span>',
-        }[p.status_pembelian] || '-';
+                <div class="modal-footer">
+                    <button class="btn-soft light" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn-soft" id="btnSavePayment">Simpan Pembayaran</button>
+                </div>
 
-        tbody.append(`
+            </div>
+        </div>
+    </div>
+
+
+    @push('scripts')
+        <script>
+            /* ============================================================
+                   GLOBAL VARIABLES
+                ============================================================ */
+            let purchases = [];
+            let supplierList = [];
+            let productList = [];
+            let purchaseModal;
+
+            let pagination = {
+                currentPage: 1,
+                perPage: 10,
+                filteredData: []
+            };
+
+            /* ============================================================
+               LOAD DATA
+            ============================================================ */
+            function loadPurchases() {
+                $.ajax({
+                    url: "/purchases/data",
+                    method: "GET",
+                    data: {
+                        search: $("#searchPurchase").val(),
+                        status: $("#filterStatus").val(),
+                        date_from: $("#dateFrom").val(),
+                        date_to: $("#dateTo").val(),
+                        page: pagination.currentPage,
+                        per_page: pagination.perPage
+                    },
+                    success: function(res) {
+
+                        const paginated = res.data; // <= ambil wrapper pagination Laravel
+
+                        renderPurchaseTable(paginated.data);
+                        renderPurchasePagination(paginated);
+                    }
+                });
+            }
+
+            function renderPurchaseTable(data) {
+                let tbody = $("#purchaseTable tbody");
+                tbody.empty();
+
+                if (!data.length) {
+                    $("#emptyState").removeClass("d-none");
+                    return;
+                }
+
+                $("#emptyState").addClass("d-none");
+
+                data.forEach((p, i) => {
+                    let supplier = p.supplier ? p.supplier.nama_supplier : '-';
+                    let total = parseFloat(p.grand_total ?? 0);
+
+                    let badge = {
+                        draft: '<span class="badge bg-secondary">Draft</span>',
+                        posted: '<span class="badge bg-info">Posted</span>',
+                        paid: '<span class="badge bg-success">Lunas</span>',
+                        unpaid: '<span class="badge bg-warning">Hutang</span>',
+                    } [p.status_pembelian] || '-';
+
+                    tbody.append(`
             <tr>
                 <td>${i + 1}</td>
                 <td>${p.tanggal}</td>
@@ -329,95 +407,101 @@ function renderPurchaseTable(data) {
                     <button class="btn btn-sm btn-edit" data-id="${p.id}"><i class="bi bi-pencil"></i></button>
                     <button class="btn btn-sm btn-print" data-id="${p.id}"><i class="bi bi-printer"></i></button>
                     <button class="btn btn-sm btn-delete" data-id="${p.id}"><i class="bi bi-trash"></i></button>
+                    ${p.status_pembelian === 'unpaid' ?
+        `<button class="btn btn-sm btn-success btn-payment" data-id="${p.id}">
+                            <i class="bi bi-cash"></i>
+                        </button>`
+    : ''}
                 </td>
             </tr>
         `);
-    });
-}
-function renderPurchasePagination(res) {
-    const pag = $("#pagination");
-    const info = $("#paginationInfo");
-    pag.empty();
+                });
+            }
 
-    if (res.total === 0) {
-        info.text("Tidak ada data.");
-        return;
-    }
+            function renderPurchasePagination(res) {
+                const pag = $("#pagination");
+                const info = $("#paginationInfo");
+                pag.empty();
 
-    info.text(
-        `Menampilkan ${res.from} - ${res.to} dari ${res.total} data (Hal ${res.current_page} / ${res.last_page})`
-    );
+                if (res.total === 0) {
+                    info.text("Tidak ada data.");
+                    return;
+                }
 
-    // Prev
-    pag.append(`
+                info.text(
+                    `Menampilkan ${res.from} - ${res.to} dari ${res.total} data (Hal ${res.current_page} / ${res.last_page})`
+                );
+
+                // Prev
+                pag.append(`
         <li class="page-item ${res.current_page == 1 ? 'disabled' : ''}">
             <a class="page-link" href="#" data-page="${res.current_page - 1}">«</a>
         </li>
     `);
 
-    // Page numbers
-    for (let p = 1; p <= res.last_page; p++) {
-        pag.append(`
+                // Page numbers
+                for (let p = 1; p <= res.last_page; p++) {
+                    pag.append(`
             <li class="page-item ${p == res.current_page ? 'active' : ''}">
                 <a class="page-link" href="#" data-page="${p}">${p}</a>
             </li>
         `);
-    }
+                }
 
-    // Next
-    pag.append(`
+                // Next
+                pag.append(`
         <li class="page-item ${res.current_page == res.last_page ? 'disabled' : ''}">
             <a class="page-link" href="#" data-page="${res.current_page + 1}">»</a>
         </li>
     `);
-}
-$("#pagination").on("click", ".page-link", function(e) {
-    e.preventDefault();
+            }
+            $("#pagination").on("click", ".page-link", function(e) {
+                e.preventDefault();
 
-    const page = $(this).data("page");
-    if (!page || page < 1) return;
+                const page = $(this).data("page");
+                if (!page || page < 1) return;
 
-    pagination.currentPage = page;
-    loadPurchases();
-});
+                pagination.currentPage = page;
+                loadPurchases();
+            });
 
 
 
-function loadSuppliers() {
-    $.get("/select/suppliers", function(res) {
-        supplierList = res;
-        let opt = `<option value="">-- Pilih Supplier --</option>`;
-        res.forEach(x => opt += `<option value="${x.id}">${x.nama_supplier}</option>`);
-        $("#supplier").html(opt);
-    });
-}
+            function loadSuppliers() {
+                $.get("/select/suppliers", function(res) {
+                    supplierList = res;
+                    let opt = `<option value="">-- Pilih Supplier --</option>`;
+                    res.forEach(x => opt += `<option value="${x.id}">${x.nama_supplier}</option>`);
+                    $("#supplier").html(opt);
+                });
+            }
 
-function loadProducts() {
-    $.get("/select/products", function(res) {
-        productList = res;
-    });
-}
+            function loadProducts() {
+                $.get("/select/products", function(res) {
+                    productList = res;
+                });
+            }
 
-/* ============================================================
-   UTILS
-============================================================ */
-function formatRupiah(v) {
-    v = isNaN(v) ? 0 : parseFloat(v);
-    return "Rp " + v.toLocaleString("id-ID");
-}
+            /* ============================================================
+               UTILS
+            ============================================================ */
+            function formatRupiah(v) {
+                v = isNaN(v) ? 0 : parseFloat(v);
+                return "Rp " + v.toLocaleString("id-ID");
+            }
 
-function clearItemsTable() {
-    $("#purchaseItemsTable tbody").empty();
-}
+            function clearItemsTable() {
+                $("#purchaseItemsTable tbody").empty();
+            }
 
-/* ============================================================
-   ITEM ROW HANDLING
-============================================================ */
-function addItemRow(data = {}) {
-    let productOptions = `<option value="">Pilih Barang</option>`;
-    productList.forEach(x => productOptions += `<option value="${x.id}">${x.nama}</option>`);
+            /* ============================================================
+               ITEM ROW HANDLING
+            ============================================================ */
+            function addItemRow(data = {}) {
+                let productOptions = `<option value="">Pilih Barang</option>`;
+                productList.forEach(x => productOptions += `<option value="${x.id}">${x.nama}</option>`);
 
-    let row = $(`
+                let row = $(`
         <tr>
             <td><select class="form-select form-select-sm item-product">${productOptions}</select></td>
             <td><input type="number" class="form-control form-control-sm item-qty" value="${data.qty ?? 1}"></td>
@@ -428,232 +512,233 @@ function addItemRow(data = {}) {
         </tr>
     `);
 
-    $("#purchaseItemsTable tbody").append(row);
+                $("#purchaseItemsTable tbody").append(row);
 
-    if (data.product_id) row.find(".item-product").val(data.product_id);
-    updateRow(row);
-    calcTotals();
-}
+                if (data.product_id) row.find(".item-product").val(data.product_id);
+                updateRow(row);
+                calcTotals();
+            }
 
-function updateRow(row) {
-    const qty = parseFloat(row.find(".item-qty").val()) || 0;
-    const price = parseFloat(row.find(".item-price").val()) || 0;
-    const disc = parseFloat(row.find(".item-disc").val()) || 0;
+            function updateRow(row) {
+                const qty = parseFloat(row.find(".item-qty").val()) || 0;
+                const price = parseFloat(row.find(".item-price").val()) || 0;
+                const disc = parseFloat(row.find(".item-disc").val()) || 0;
 
-    let subtotal = qty * price;
-    subtotal -= subtotal * (disc / 100);
+                let subtotal = qty * price;
+                subtotal -= subtotal * (disc / 100);
 
-    row.find(".item-subtotal").text(formatRupiah(subtotal));
-}
+                row.find(".item-subtotal").text(formatRupiah(subtotal));
+            }
 
-/* ============================================================
-   TOTALS
-============================================================ */
-function calcTotals() {
-    let total = 0;
+            /* ============================================================
+               TOTALS
+            ============================================================ */
+            function calcTotals() {
+                let total = 0;
 
-    $("#purchaseItemsTable tbody tr").each(function() {
-        let qty = parseFloat($(this).find(".item-qty").val()) || 0;
-        let price = parseFloat($(this).find(".item-price").val()) || 0;
-        let disc = parseFloat($(this).find(".item-disc").val()) || 0;
+                $("#purchaseItemsTable tbody tr").each(function() {
+                    let qty = parseFloat($(this).find(".item-qty").val()) || 0;
+                    let price = parseFloat($(this).find(".item-price").val()) || 0;
+                    let disc = parseFloat($(this).find(".item-disc").val()) || 0;
 
-        let sub = qty * price;
-        sub -= sub * (disc / 100);
+                    let sub = qty * price;
+                    sub -= sub * (disc / 100);
 
-        total += sub;
-    });
+                    total += sub;
+                });
 
-    $("#subTotalText").text(formatRupiah(total));
+                $("#subTotalText").text(formatRupiah(total));
 
-    let transDisc = parseFloat($("#discountTransaction").val()) || 0;
-    let nett = Math.max(total - transDisc, 0);
+                let transDisc = parseFloat($("#discountTransaction").val()) || 0;
+                let nett = Math.max(total - transDisc, 0);
 
-    const ppn = parseFloat($("#ppnPercent").val()) || 0;
-    const grand = nett + (nett * ppn / 100);
+                const ppn = parseFloat($("#ppnPercent").val()) || 0;
+                const grand = nett + (nett * ppn / 100);
 
-    $("#grandTotalText").text(formatRupiah(grand));
-}
+                $("#grandTotalText").text(formatRupiah(grand));
+            }
 
-/* ============================================================
-   MODAL HANDLING
-============================================================ */
-function openNewPurchaseModal() {
-    $("#purchaseModalTitle").text("Pembelian Baru");
-    $("#purchaseForm")[0].reset();
-    $("#purchaseId").val("");
-    clearItemsTable();
-    addItemRow();
-    calcTotals();
-    purchaseModal.show();
-}
+            /* ============================================================
+               MODAL HANDLING
+            ============================================================ */
+            function openNewPurchaseModal() {
+                $("#purchaseModalTitle").text("Pembelian Baru");
+                $("#purchaseForm")[0].reset();
+                $("#purchaseId").val("");
+                clearItemsTable();
+                addItemRow();
+                calcTotals();
+                purchaseModal.show();
+            }
 
-function openEditPurchaseModal(id) {
-    $.get(`/purchases/${id}/detail`, function(res) {
-        const p = res.data;
+            function openEditPurchaseModal(id) {
+                $.get(`/purchases/${id}/detail`, function(res) {
+                    const p = res.data;
 
-        $("#purchaseModalTitle").text("Edit Pembelian");
-        $("#purchaseId").val(p.id);
-        $("#noInvoice").val(p.invoice);
-        $("#supplier").val(p.supplier_id);
-        $("#tgl").val(p.tanggal);
-        $("#jatuhTempo").val(p.jatuh_tempo);
-        $("#statusPembelian").val(p.status_pembelian);
-        $("#metodeBayar").val(p.metode_bayar);
-        $("#catatan").val(p.catatan);
-        $("#ppnPercent").val(p.ppn_percent || 11);
-        $("#discountTransaction").val(p.discount_transaction || 0);
+                    $("#purchaseModalTitle").text("Edit Pembelian");
+                    $("#purchaseId").val(p.id);
+                    $("#noInvoice").val(p.invoice);
+                    $("#supplier").val(p.supplier_id);
+                    $("#tgl").val(p.tanggal);
+                    $("#jatuhTempo").val(p.jatuh_tempo);
+                    $("#statusPembelian").val(p.status_pembelian);
+                    $("#metodeBayar").val(p.metode_bayar);
+                    $("#catatan").val(p.catatan);
+                    $("#ppnPercent").val(p.ppn_percent || 11);
+                    $("#discountTransaction").val(p.discount_transaction || 0);
 
-        clearItemsTable();
-        (p.items || []).forEach(it => {
-            addItemRow({
-                product_id: it.product_id,
-                qty: it.qty,
-                price: it.harga_beli,
-                discount_percent: it.discount_percent
-            });
-        });
+                    clearItemsTable();
+                    (p.items || []).forEach(it => {
+                        addItemRow({
+                            product_id: it.product_id,
+                            qty: it.qty,
+                            price: it.harga_beli,
+                            discount_percent: it.discount_percent
+                        });
+                    });
 
-        calcTotals();
-        purchaseModal.show();
-    });
-}
+                    calcTotals();
+                    purchaseModal.show();
+                });
+            }
 
-// function savePurchase() {
-//     const id = $("#purchaseId").val();
+            // function savePurchase() {
+            //     const id = $("#purchaseId").val();
 
-//     const payload = {
-//         id,
-//         invoice: $("#noInvoice").val(),
-//         supplier_id: $("#supplier").val(),
-//         date: $("#tgl").val(),
-//         due_date: $("#jatuhTempo").val(),
-//         status: $("#statusPembelian").val(),
-//         method: $("#metodeBayar").val(),
-//         note: $("#catatan").val(),
-//         ppn_percent: $("#ppnPercent").val(),
-//         discount_transaction: $("#discountTransaction").val(),
-//         items: []
-//     };
+            //     const payload = {
+            //         id,
+            //         invoice: $("#noInvoice").val(),
+            //         supplier_id: $("#supplier").val(),
+            //         date: $("#tgl").val(),
+            //         due_date: $("#jatuhTempo").val(),
+            //         status: $("#statusPembelian").val(),
+            //         method: $("#metodeBayar").val(),
+            //         note: $("#catatan").val(),
+            //         ppn_percent: $("#ppnPercent").val(),
+            //         discount_transaction: $("#discountTransaction").val(),
+            //         items: []
+            //     };
 
-//     $("#purchaseItemsTable tbody tr").each(function() {
-//         payload.items.push({
-//             product_id: $(this).find(".item-product").val(),
-//             qty: $(this).find(".item-qty").val(),
-//             price: $(this).find(".item-price").val(),
-//             discount_percent: $(this).find(".item-disc").val()
-//         });
-//     });
+            //     $("#purchaseItemsTable tbody tr").each(function() {
+            //         payload.items.push({
+            //             product_id: $(this).find(".item-product").val(),
+            //             qty: $(this).find(".item-qty").val(),
+            //             price: $(this).find(".item-price").val(),
+            //             discount_percent: $(this).find(".item-disc").val()
+            //         });
+            //     });
 
-//     $.post("/purchases/store", payload, function() {
-//         Swal.fire("Sukses", "Pembelian berhasil disimpan", "success");
-//         purchaseModal.hide();
-//         loadPurchases();
-//     });
-// }
+            //     $.post("/purchases/store", payload, function() {
+            //         Swal.fire("Sukses", "Pembelian berhasil disimpan", "success");
+            //         purchaseModal.hide();
+            //         loadPurchases();
+            //     });
+            // }
 
-function savePurchase() {
-    const id = $("#purchaseId").val();
+            function savePurchase() {
+                const id = $("#purchaseId").val();
 
-    const payload = {
-        invoice: $("#noInvoice").val(),
-        supplier_id: $("#supplier").val(),
-        date: $("#tgl").val(),
-        due_date: $("#jatuhTempo").val(),
-        status: $("#statusPembelian").val(),
-        method: $("#metodeBayar").val(),
-        note: $("#catatan").val(),
-        ppnPercent: $("#ppnPercent").val(),
-        discount_transaction: $("#discountTransaction").val(),
-        items: []
-    };
+                const payload = {
+                    invoice: $("#noInvoice").val(),
+                    supplier_id: $("#supplier").val(),
+                    date: $("#tgl").val(),
+                    due_date: $("#jatuhTempo").val(),
+                    status: $("#statusPembelian").val(),
+                    method: $("#metodeBayar").val(),
+                    note: $("#catatan").val(),
+                    ppnPercent: $("#ppnPercent").val(),
+                    discount_transaction: $("#discountTransaction").val(),
+                    items: []
+                };
 
-    $("#purchaseItemsTable tbody tr").each(function() {
-        payload.items.push({
-            product_id: $(this).find(".item-product").val(),
-            qty: $(this).find(".item-qty").val(),
-            price: $(this).find(".item-price").val(),
-            discount_percent: $(this).find(".item-disc").val()
-        });
-    });
+                $("#purchaseItemsTable tbody tr").each(function() {
+                    payload.items.push({
+                        product_id: $(this).find(".item-product").val(),
+                        qty: $(this).find(".item-qty").val(),
+                        price: $(this).find(".item-price").val(),
+                        discount_percent: $(this).find(".item-disc").val()
+                    });
+                });
 
-    let url = "";
-    let method = "";
+                let url = "";
+                let method = "";
 
-    if (id) {
-        // EDIT
-        url = `/purchases/${id}`;
-        method = "PUT";
-    } else {
-        // NEW
-        url = `/purchases/store`;
-        method = "POST";
-    }
+                if (id) {
+                    // EDIT
+                    url = `/purchases/${id}`;
+                    method = "PUT";
+                } else {
+                    // NEW
+                    url = `/purchases/store`;
+                    method = "POST";
+                }
 
-    $.ajax({
-        url: url,
-        method: method,
-        data: payload,
-        success: function(res) {
-            Swal.fire("Sukses", id ? "Pembelian berhasil diperbarui" : "Pembelian berhasil disimpan", "success");
-            purchaseModal.hide();
-            loadPurchases();
-        },
-        error: function(err) {
-            console.log(err);
-            Swal.fire("Error", "Gagal menyimpan data", "error");
-        }
-    });
-}
+                $.ajax({
+                    url: url,
+                    method: method,
+                    data: payload,
+                    success: function(res) {
+                        Swal.fire("Sukses", id ? "Pembelian berhasil diperbarui" : "Pembelian berhasil disimpan",
+                            "success");
+                        purchaseModal.hide();
+                        loadPurchases();
+                    },
+                    error: function(err) {
+                        console.log(err);
+                        Swal.fire("Error", "Gagal menyimpan data", "error");
+                    }
+                });
+            }
 
 
 
 
-/* ============================================================
-   EVENT HANDLERS
-============================================================ */
-$(function() {
+            /* ============================================================
+               EVENT HANDLERS
+            ============================================================ */
+            $(function() {
 
-    purchaseModal = new bootstrap.Modal($("#purchaseModal")[0]);
+                purchaseModal = new bootstrap.Modal($("#purchaseModal")[0]);
 
-    loadPurchases();
-    loadSuppliers();
-    loadProducts();
+                loadPurchases();
+                loadSuppliers();
+                loadProducts();
 
-    $("#btnNewPurchase").click(openNewPurchaseModal);
-    $("#btnAddRow").click(() => addItemRow());
-    $("#ppnPercent, #discountTransaction").on("input", calcTotals);
+                $("#btnNewPurchase").click(openNewPurchaseModal);
+                $("#btnAddRow").click(() => addItemRow());
+                $("#ppnPercent, #discountTransaction").on("input", calcTotals);
 
-    // TABLE ITEM EVENTS
-    $("#purchaseItemsTable")
-        .on("input change", ".item-qty, .item-price, .item-disc", function() {
-            updateRow($(this).closest("tr"));
-            calcTotals();
-        })
-        .on("change", ".item-product", function() {
-            const row = $(this).closest("tr");
-            const selected = productList.find(x => x.id == $(this).val());
-            if (selected) row.find(".item-price").val(selected.harga_modal);
-            updateRow(row);
-            calcTotals();
-        })
-        .on("click", ".remove-row", function() {
-            $(this).closest("tr").remove();
-            calcTotals();
-        });
+                // TABLE ITEM EVENTS
+                $("#purchaseItemsTable")
+                    .on("input change", ".item-qty, .item-price, .item-disc", function() {
+                        updateRow($(this).closest("tr"));
+                        calcTotals();
+                    })
+                    .on("change", ".item-product", function() {
+                        const row = $(this).closest("tr");
+                        const selected = productList.find(x => x.id == $(this).val());
+                        if (selected) row.find(".item-price").val(selected.harga_modal);
+                        updateRow(row);
+                        calcTotals();
+                    })
+                    .on("click", ".remove-row", function() {
+                        $(this).closest("tr").remove();
+                        calcTotals();
+                    });
 
-    // SAVE PURCHASE
-    $("#btnSavePurchase").click(savePurchase);
+                // SAVE PURCHASE
+                $("#btnSavePurchase").click(savePurchase);
 
-    // VIEW DETAIL
-    const detailModal = new bootstrap.Modal($("#detailPurchaseModal")[0]);
+                // VIEW DETAIL
+                const detailModal = new bootstrap.Modal($("#detailPurchaseModal")[0]);
 
-    $("#purchaseTable").on("click", ".btn-view", function() {
-        const id = $(this).data("id");
+                $("#purchaseTable").on("click", ".btn-view", function() {
+                    const id = $(this).data("id");
 
-        $.get(`/purchases/${id}/detail`, function(res) {
-            const p = res.data;
+                    $.get(`/purchases/${id}/detail`, function(res) {
+                        const p = res.data;
 
-            $("#detailContent").html(`
+                        $("#detailContent").html(`
                 <div style="font-size:14px;">
                     <div><b>No Invoice:</b> ${p.invoice}</div>
                     <div><b>Tanggal:</b> ${p.tanggal}</div>
@@ -663,12 +748,12 @@ $(function() {
                 </div>
             `);
 
-            let itemsHTML = "";
-            p.items.forEach(i => {
-                let subtotal = i.qty * i.harga_beli;
-                subtotal -= subtotal * (i.discount_percent / 100);
+                        let itemsHTML = "";
+                        p.items.forEach(i => {
+                            let subtotal = i.qty * i.harga_beli;
+                            subtotal -= subtotal * (i.discount_percent / 100);
 
-                itemsHTML += `
+                            itemsHTML += `
                     <tr>
                         <td>${i.product.nama}</td>
                         <td class="text-end">${i.qty}</td>
@@ -677,61 +762,117 @@ $(function() {
                         <td class="text-end">${formatRupiah(subtotal)}</td>
                     </tr>
                 `;
+                        });
+
+                        $("#detailItems").html(itemsHTML);
+                        $("#detailSubtotal").text(`Subtotal: ${formatRupiah(p.subtotal)}`);
+                        $("#detailPpn").text(`ppn: ${p.ppn_percent}%`);
+                        $("#detailDiscount").text(`diskon: ${formatRupiah(p.discount_transaction)}`);
+                        $("#detailTotal").text(`Grand Total: ${formatRupiah(p.grand_total)}`);
+
+                        detailModal.show();
+                    });
+                });
+
+                // EDIT
+                $("#purchaseTable").on("click", ".btn-edit", function() {
+                    openEditPurchaseModal($(this).data("id"));
+                });
+
+                // PRINT
+                $("#purchaseTable").on("click", ".btn-print", function() {
+                    window.open(`/purchases/${$(this).data("id")}/print`, "_blank");
+                });
+
+                // DELETE
+                $("#purchaseTable").on("click", ".btn-delete", function() {
+                    const id = $(this).data("id");
+
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Hapus Pembelian?",
+                        text: "Data akan dihapus permanen!",
+                        showCancelButton: true,
+                        confirmButtonText: "Hapus",
+                        cancelButtonText: "Batal"
+                    }).then(res => {
+                        if (res.isConfirmed) {
+                            $.ajax({
+                                url: `/purchases/${id}/delete`,
+                                method: "DELETE",
+                                success: function() {
+                                    Swal.fire("Deleted", "Pembelian berhasil dihapus!",
+                                        "success");
+                                    loadPurchases();
+                                }
+                            });
+                        }
+                    });
+                });
+
+                $("#searchPurchase, #filterStatus, #dateFrom, #dateTo").on("input change", function() {
+                    pagination.currentPage = 1;
+                    loadPurchases();
+                });
+
             });
 
-            $("#detailItems").html(itemsHTML);
-            $("#detailSubtotal").text(`Subtotal: ${formatRupiah(p.subtotal)}`);
-            $("#detailPpn").text(`ppn: ${p.ppn_percent}%`);
-            $("#detailDiscount").text(`diskon: ${formatRupiah(p.discount_transaction)}`);
-            $("#detailTotal").text(`Grand Total: ${formatRupiah(p.grand_total)}`);
+            let paymentModal = new bootstrap.Modal($("#paymentModal")[0]);
 
-            detailModal.show();
-        });
-    });
+            $("#purchaseTable").on("click", ".btn-payment", function() {
+                const id = $(this).data("id");
+                $("#paymentPurchaseId").val(id);
 
-    // EDIT
-    $("#purchaseTable").on("click", ".btn-edit", function() {
-        openEditPurchaseModal($(this).data("id"));
-    });
+                $.get(`/purchases/${id}/detail`, function(res) {
+                    const p = res.data;
 
-    // PRINT
-    $("#purchaseTable").on("click", ".btn-print", function() {
-        window.open(`/purchases/${$(this).data("id")}/print`, "_blank");
-    });
+                    const totalPaid = p.payments?.reduce((acc, x) => acc + x.amount, 0) || 0;
+                    const remaining = p.grand_total - totalPaid;
 
-    // DELETE
-    $("#purchaseTable").on("click", ".btn-delete", function() {
-        const id = $(this).data("id");
-
-        Swal.fire({
-            icon: "warning",
-            title: "Hapus Pembelian?",
-            text: "Data akan dihapus permanen!",
-            showCancelButton: true,
-            confirmButtonText: "Hapus",
-            cancelButtonText: "Batal"
-        }).then(res => {
-            if (res.isConfirmed) {
-                $.ajax({
-                    url: `/purchases/${id}/delete`,
-                    method: "DELETE",
-                    success: function() {
-                        Swal.fire("Deleted", "Pembelian berhasil dihapus!", "success");
-                        loadPurchases();
-                    }
+                    $("#paymentRemainingInfo").text(`Sisa hutang: Rp ${remaining.toLocaleString()}`);
+                    $("#paymentAmount").attr("max", remaining);
                 });
-            }
-        });
-    });
 
-    $("#searchPurchase, #filterStatus, #dateFrom, #dateTo").on("input change", function() {
-    pagination.currentPage = 1;
-    loadPurchases();
-});
+                paymentModal.show();
+            });
+            $("#btnSavePayment").click(function() {
+                const payload = {
+                    purchase_id: $("#paymentPurchaseId").val(),
+                    payment_date: $("#paymentDate").val(),
+                    payment_method: $("#paymentMethod").val(),
+                    amount: $("#paymentAmount").val(),
+                    reference: $("#paymentReference").val(),
+                    note: $("#paymentNote").val(),
+                };
 
-});
+                $.post("/purchase-payments/store", payload, function(res) {
+                    Swal.fire("Sukses", "Pembayaran berhasil disimpan", "success");
+                    paymentModal.hide();
+                    loadPurchases();
+                }).fail(function(err) {
+                    Swal.fire("Error", err.responseJSON.message ?? "Gagal menyimpan pembayaran", "error");
+                });
+            });
+            $("#purchaseTable").on("click", ".btn-view", function() {
+                const id = $(this).data("id");
 
-</script>
-@endpush
+                $.get(`/purchase-payments/${id}`, function(res) {
+                    let html = "";
 
+                    res.data.forEach(p => {
+                        html += `
+                <tr>
+                    <td>${p.payment_date}</td>
+                    <td>${p.payment_method}</td>
+                    <td>Rp ${p.amount.toLocaleString()}</td>
+                    <td>Rp ${p.remaining_amount.toLocaleString()}</td>
+                </tr>
+            `;
+                    });
+
+                    $("#paymentHistoryBody").html(html || "<tr><td colspan='4'>Belum ada pembayaran</td></tr>");
+                });
+            });
+        </script>
+    @endpush
 @endsection

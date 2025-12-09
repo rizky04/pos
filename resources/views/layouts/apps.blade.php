@@ -833,6 +833,10 @@
     text-decoration: none !important;
 }
 
+a {
+    text-decoration: none !important;
+}
+
 .side-btn {
     text-decoration: none !important;
 }
