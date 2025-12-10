@@ -408,7 +408,7 @@
                     <button class="btn btn-sm btn-print" data-id="${p.id}"><i class="bi bi-printer"></i></button>
                     <button class="btn btn-sm btn-delete" data-id="${p.id}"><i class="bi bi-trash"></i></button>
                     ${p.status_pembelian === 'unpaid' ?
-        `<button class="btn btn-sm btn-success btn-payment" data-id="${p.id}">
+        `<button class="btn btn-sm btn-payment" data-id="${p.id}">
                             <i class="bi bi-cash"></i>
                         </button>`
     : ''}

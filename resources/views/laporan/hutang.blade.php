@@ -197,6 +197,63 @@
     </div>
 </div>
 
+<!-- MODAL PEMBAYARAN HUTANG (UNTUK LAPORAN HUTANG SUPPLIER) -->
+<div class="modal fade" id="modalPay" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Pembayaran Hutang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <input type="hidden" id="paymentPurchaseId">
+
+                <div class="mb-2">
+                    <label class="form-label">Tanggal Bayar</label>
+                    <input type="date" id="payDate" class="form-control" required>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Metode Bayar</label>
+                    <select id="payMethod" class="form-select">
+                        <option value="Cash">Cash</option>
+                        <option value="Transfer">Transfer</option>
+                        <option value="Giro">Giro</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Nominal Bayar</label>
+                    <input type="number" id="payAmount" class="form-control" required>
+                    <small id="payRemainingInfo" class="text-muted"></small>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">No Referensi</label>
+                    <input type="text" id="payReference" class="form-control" placeholder="Opsional">
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Catatan</label>
+                    <input type="text" id="payNote" class="form-control" placeholder="Opsional">
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-soft light" data-bs-dismiss="modal">Batal</button>
+                <button class="btn-soft" id="btnSubmitPayment">Simpan Pembayaran</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 @endsection
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -264,13 +321,40 @@
                             <button class="btn btn-sm btn-pay" data-id="${inv.id}">
                                 <i class="bi bi-cash"></i>
                             </button>
-                            <a href="/purchases/${inv.id}/print" target="_blank" class="btn btn-sm">
-                                <i class="bi bi-printer"></i>
-                            </a>
+
+
+
+<div class="btn-group">
+    <button type="button" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="bi bi-printer"></i> Print
+    </button>
+    <ul class="dropdown-menu">
+        ${inv.payments.map(p => `
+            <li>
+                <a class="dropdown-item" href="/purchase-payments/${p.id}/print" target="_blank">
+                    Pembayaran: Rp ${p.amount.toLocaleString()}
+                </a>
+            </li>
+        `).join('')}
+    </ul>
+</div>
+
+
+
+
+
                         </td>
                     </tr>
                 `;
             });
+
+//                       ${inv.payments.map(p => `
+//     <a href="/purchase-payments/${p.id}/print"
+//         target="_blank"
+//         class="btn btn-sm">
+//         <i class="bi bi-printer"></i>
+//     </a>
+// `).join('')}
 
             $("#detailBody").html(html);
 
@@ -298,16 +382,61 @@ $("#filterDetailForm").submit(function(e) {
     const supplierId = $("#detailSupplierId").val();
     loadDetailSupplier(supplierId);
 });
-$(document).on("click", ".btn-pay", function() {
+// $(document).on("click", ".btn-pay", function() {
+//     const purchaseId = $(this).data("id");
+
+//     // Jika Anda punya modal bayar purchase dengan id: #modalPay
+//     $("#paymentPurchaseId").val(purchaseId);
+
+//     $("#modalPay").modal("show");
+
+//     // Optionally: load detail invoice dulu
+// });
+
+// --- OPEN PAYMENT MODAL ---
+$(document).on("click", ".btn-pay", function () {
     const purchaseId = $(this).data("id");
 
-    // Jika Anda punya modal bayar purchase dengan id: #modalPay
     $("#paymentPurchaseId").val(purchaseId);
 
-    $("#modalPay").modal("show");
+    // Load detail untuk sisa hutang
+    $.get(`/purchases/${purchaseId}/detail`, function (res) {
+        const p = res.data;
 
-    // Optionally: load detail invoice dulu
+        const totalPaid = p.payments?.reduce((acc, x) => acc + x.amount, 0) || 0;
+        const remaining = p.grand_total - totalPaid;
+
+        $("#payRemainingInfo").text(`Sisa hutang: Rp ${remaining.toLocaleString()}`);
+        $("#payAmount").attr("max", remaining);
+    });
+
+    $("#modalPay").modal("show");
 });
+
+
+// --- SAVE PAYMENT ---
+$("#btnSubmitPayment").click(function () {
+    const payload = {
+        purchase_id: $("#paymentPurchaseId").val(),
+        payment_date: $("#payDate").val(),
+        payment_method: $("#payMethod").val(),
+        amount: $("#payAmount").val(),
+        reference: $("#payReference").val(),
+        note: $("#payNote").val(),
+    };
+
+    $.post("/purchase-payments/store", payload, function (res) {
+        Swal.fire("Sukses", "Pembayaran berhasil disimpan", "success");
+        $("#modalPay").modal("hide");
+
+        // Reload detail supplier
+        const sid = $("#detailSupplierId").val();
+        loadDetailSupplier(sid);
+    }).fail(function (err) {
+        Swal.fire("Error", err.responseJSON.message ?? "Gagal menyimpan pembayaran", "error");
+    });
+});
+
 
     </script>
 @endpush

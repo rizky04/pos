@@ -148,34 +148,6 @@ class LaporanPurchaseController extends Controller
     return view('laporan.detail_supplier', compact('supplier', 'invoices'));
 }
 
-// public function detailSupplierAjax($id, Request $request)
-// {
-//     $tenantId = Auth::user()->tenant_id;
-
-//     $supplier = Supplier::where('tenant_id', $tenantId)->findOrFail($id);
-
-//     $query = Purchase::with('payments')
-//         ->where('tenant_id', $tenantId)
-//         ->where('supplier_id', $id)
-//         ->orderBy('tanggal', 'asc');
-
-//     $invoices = $query->get()->map(function ($p) {
-//         $paid = $p->payments->sum('amount');
-//         return [
-//             'id'        => $p->id,
-//             'tanggal'   => $p->tanggal,
-//             'invoice'   => $p->invoice,
-//             'total'     => $p->grand_total,
-//             'paid'      => $paid,
-//             'remaining' => max($p->grand_total - $paid, 0),
-//         ];
-//     });
-
-//     return response()->json([
-//         'supplier' => $supplier,
-//         'invoices' => $invoices
-//     ]);
-// }
 
 public function detailSupplierAjax($id, Request $request)
 {
@@ -199,6 +171,15 @@ public function detailSupplierAjax($id, Request $request)
             'total'     => $p->grand_total,
             'paid'      => $paid,
             'remaining' => max($p->grand_total - $paid, 0),
+
+            // WAJIB DITAMBAHKAN
+        'payments'  => $p->payments->map(function ($pay) {
+            return [
+                'id'     => $pay->id,
+                'date'   => $pay->payment_date,
+                'amount' => $pay->amount,
+            ];
+        }),
         ];
     });
 

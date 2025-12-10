@@ -299,8 +299,15 @@ public function store(Request $request)
 
         DB::beginTransaction();
         try {
+
+             /** Restore stock old items */
+            foreach ($pembelian->items as $oldItem) {
+                Product::where('id', $oldItem->product_id)
+                    ->decrement('stok', $oldItem->qty);
+            }
             $pembelian->items()->delete();
             $pembelian->delete();
+
 
             DB::commit();
             return response()->json([

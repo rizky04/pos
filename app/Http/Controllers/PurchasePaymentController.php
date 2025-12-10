@@ -146,4 +146,23 @@ class PurchasePaymentController extends Controller
             ]);
         }
     }
+
+  public function printBukti($id)
+{
+    $payment = PurchasePayment::with(['purchase.supplier'])->findOrFail($id);
+
+    $purchase = $payment->purchase;
+
+    $totalPaid = $purchase->payments()->sum('amount');
+    $remaining = $purchase->grand_total - $totalPaid;
+
+    return view('laporan.print', compact(
+        'payment',
+        'purchase',
+        'totalPaid',
+        'remaining'
+    ));
+}
+
+
 }

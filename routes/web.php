@@ -150,6 +150,7 @@ Route::get('/laporan/hutang', [LaporanPurchaseController::class, 'hutang'])->nam
 Route::get('/laporan/hutang/supplier/{id}', [LaporanPurchaseController::class, 'detailSupplier'])->name('laporan.detail_supplier');
 Route::get('/laporan/hutang/detail/{supplier_id}', [LaporanPurchaseController::class, 'detailSupplierAjax'])
     ->name('laporan.detail_supplier.ajax');
+Route::get('/purchase-payments/{id}/print', [PurchasePaymentController::class, 'printBukti']);
 
 
 
