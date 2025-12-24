@@ -171,4 +171,17 @@ Route::get('/purchase-payments/{id}/print', [PurchasePaymentController::class, '
 
     Route::get('/select/products', [SelectController::class, 'product']);
 Route::get('/select/suppliers', [SelectController::class, 'supplier']);
+
+
+Route::get('report/transactions', [SalesReportController::class, 'index'])->name('transaction.report');
+Route::prefix('sales')->group(function () {
+    Route::get('/data', [SalesReportController::class, 'list'])->name('sales.data');
+
+    Route::prefix('report')->group(function () {
+        Route::get('/kasir', [SalesReportController::class, 'perKasir']);
+        Route::get('/laba-kotor', [SalesReportController::class, 'labaKotor']);
+        Route::get('/laba-bersih', [SalesReportController::class, 'labaBersih']);
+    });
+});
+
 });

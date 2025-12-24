@@ -80,14 +80,16 @@
             <span class="nav-label">Barang</span>
         </div>
          </a>
+         <a href="{{ route('transaction.report') }}">
        <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Laporan">
            <i class="bi bi-graph-up"></i>
            <span class="nav-label">Laporan</span>
        </div>
-       <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Pengaturan">
+            </a>
+       {{-- <div class="side-btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Pengaturan">
            <i class="bi bi-gear"></i>
            <span class="nav-label">Pengaturan</span>
-       </div>
+       </div> --}}
        <div class="side-spacer"></div>
        <a href="{{ route('logout') }}"
            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

@@ -87,13 +87,19 @@ class TransactionController extends Controller
         // SIMPAN ITEM
         foreach ($request->items as $item) {
 
-            TransactionItem::create([
+
+          $product = Product::where('id', $item['product_id'])->firstOrFail();
+
+          $dataku = TransactionItem::create([
                 'transaction_id' => $trx->id,
                 'product_id' => $item['product_id'],
                 'qty' => $item['qty'],
                 'price' => $item['price'],
+                'purchase_price' => $product->harga_modal ?? 0,
                 'total' => $item['qty'] * $item['price'],
             ]);
+
+            // dd($dataku);
 
             // KURANGI STOK PRODUK
             Product::where('id', $item['product_id'])->decrement('stok', $item['qty']);
