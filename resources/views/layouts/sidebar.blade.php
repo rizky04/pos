@@ -64,13 +64,13 @@
            </div>
        </a>
        <!-- MASTER GUDANG ACTIVE -->
-       <a href="{{ route('warehouses.index') }}">
+       {{-- <a href="{{ route('warehouses.index') }}">
            <div class="side-btn {{ request()->routeIs('warehouses.*') ? 'active' : '' }}" data-bs-toggle="tooltip"
                data-bs-placement="right" title="Master Gudang">
                <i class="bi bi-building"></i>
                 <span class="nav-label">Gudang</span>
            </div>
-       </a>
+       </a> --}}
         <a href="{{ route('products.index') }}">
         <div class="side-btn {{ request()->routeIs('products.*') ? 'active' : '' }}"
              data-bs-toggle="tooltip"

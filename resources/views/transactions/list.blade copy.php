@@ -167,14 +167,14 @@
                         </select>
                     </div>
 
-                    {{-- <div class="col-md-3">
+                    <div class="col-md-3">
                         <label class="form-label">Status</label>
                         <select id="editStatus" class="form-select">
                             <option value="paid">Lunas</option>
                             <option value="unpaid">Hutang</option>
                             <option value="void">Batal</option>
                         </select>
-                    </div> --}}
+                    </div>
                     <div class="col-md-4">
         <label class="form-label">Kode Transaksi</label>
         <input type="text" id="editKode" class="form-control" readonly>
@@ -209,7 +209,27 @@
                 <hr>
 
                 <!-- TOTAL -->
-
+                {{-- <div class="row">
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal</span>
+                            <span id="editSubTotal">Rp 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Diskon</span>
+                            <span id="editDiscount">Rp 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>PPN</span>
+                            <span id="editPpn">Rp 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total</span>
+                            <span id="editGrandTotal">Rp 0</span>
+                        </div>
+                    </div>
+                </div> --}}
                 <div class="row">
                     <div class="col-md-6"></div>
                     <div class="col-md-6">
@@ -262,49 +282,23 @@
                 <strong id="changeAmount">Rp 0</strong>
             </div>
 
-              <div class="summary-row align-items-center">
+                 <div class="summary-row align-items-center">
                 <span>Status Bayar</span>
-               <select id="editStatus" class="form-select form-select-sm" style="width:70px;">
+               <select id="status" class="form-select form-select-sm" style="width:70px;">
                         <option value="paid" >Lunas</option>
                         <option value="unpaid">Hutang</option>
                         <option value="void">Batal</option>
                     </select>
             </div>
-
-             <div class="summary-row align-items-center">
-                <span>Metode Bayar</span>
-               <select id="paymentMethod" class="form-select form-select-sm" style="width:70px;">
-                        <option value="cash">Cash</option>
-                        <option value="transfer">Transfer</option>
-                        <option value="qris">QRIS</option>
-                        <option value="debit card">Kartu Debit</option>
-                    </select>
-            </div>
-  <div class="summary-row">
-                <span>Total</span>
-               <strong id="chargeAmount">Rp 0</strong>
-            </div>
-
-<div class="mt-2">
-    <label style="font-size:12px;font-weight:600;">Catatan</label>
-    <textarea
-        id="orderNote"
-        class="form-control form-control-sm"
-        rows="2"
-        style="font-size:12px; resize:none;"
-    ></textarea>
-</div>
         </div>
 
-        {{-- <button class="btn-charge" id="btnCharge">
-            Total <strong id="chargeAmount">Rp 0</strong>
+        <button class="btn-charge" id="btnCharge">
+            Charge <strong id="chargeAmount">Rp 0</strong>
             <span><i class="bi bi-arrow-right-circle-fill"></i></span>
-        </button> --}}
+        </button>
                     </div>
                 </div>
-
             </div>
-
 
             <div class="modal-footer">
                 <button class="btn-soft light" data-bs-dismiss="modal">Batal</button>
@@ -337,7 +331,6 @@
 
 @push('scripts')
 <script>
-    $(document).ready(function () {
     function printMini() {
     window.print();
 }
@@ -463,6 +456,39 @@
                     </tr>
                 `;
             });
+
+            // $("#transactionDetail").html(`
+            //     <b>Kode:</b> ${t.kode}<br>
+            //     <b>Tanggal:</b> ${t.created_at}<br>
+            //     <b>Status:</b> ${t.status}<br>
+            //     <hr>
+            //     <b>Detail Item</b>
+            //     <table class="table-responsive mt-2">
+            //         <thead>
+            //             <tr>
+            //                 <th>#</th>
+            //                 <th>Produk</th>
+            //                 <th>Qty</th>
+            //                 <th>Subtotal</th>
+            //             </tr>
+            //         </thead>
+            //         <tbody>${items}</tbody>
+            //     </table>
+            //     <hr>
+            //     <b>Subtotal:</b> Rp ${parseInt(t.sub_total).toLocaleString()}
+            //     <br>
+            //     <b>Discount:</b> Rp ${parseInt(t.discount_value).toLocaleString()} (${t.discount_type})
+            //     <br>
+            //     <b>Setelah Diskon:</b> Rp ${parseInt(t.total_after_discount).toLocaleString()}
+            //     <br>
+            //     <b>PPN:</b> Rp ${parseInt(t.ppn).toLocaleString()}
+            //     <br>
+            //     <b>Setelah PPN:</b> Rp ${parseInt(t.total_after_ppn).toLocaleString()}
+            //     <br>
+            //     <b>Bayar:</b> Rp ${parseInt(t.pay_amount).toLocaleString()}
+            //     <br>
+            //     <b>Kembalian:</b> Rp ${parseInt(t.change_amount).toLocaleString()}
+            // `);
             $("#transactionDetail").html(`
     <div class="mb-2">
         <div><b>Customer</b>: ${t.customer ? t.customer.nama : 'Umum'}</div>
@@ -623,8 +649,8 @@ $("#transactionTable").on("click", "[data-action='print']", function () {
     });
 });
 
-
-
+</script>
+<script>
 let editModal = new bootstrap.Modal(document.getElementById("editTransactionModal"));
 let products = @json($products ?? []);
 
@@ -635,19 +661,16 @@ $("#transactionTable").on("click", ".btn-edit", function () {
     const id = $(this).data("id");
 
     $.get(`/transactions/${id}`, function (res) {
-        console.log(res);
         $("#editTransactionId").val(res.id);
         $("#editStatus").val(res.status);
         $("#editCustomer").val(res.customer_id);
 $("#editKode").val(res.kode);
 
-$("#discountValue").val(res.discount_value);
-$("#discountType").val(res.discount_type);
-$("#ppnValue").val(res.ppn);
-$("#payAmount").val(res.pay_amount);
-$("#changeAmount").val(res.change_amount);
-$("#paymentMethod").val(res.payment_method);
-$("#orderNote").val(res.note);
+$("#editDiscountValue").val(res.discount_value);
+$("#editDiscountType").val(res.discount_type);
+$("#editPpnInput").val(res.ppn);
+$("#editPayAmount").val(res.pay_amount);
+$("#editChangeAmount").val(res.change_amount);
 
 
         $("#editItemsTable tbody").empty();
@@ -685,7 +708,7 @@ function addEditItemRow(data = {}) {
                 <input type="number" class="form-control form-control-sm edit-qty" value="${data.qty ?? 1}">
             </td>
             <td>
-                <input type="number" class="form-control form-control-sm edit-price" value="${data.price ?? 0}" readonly>
+                <input type="number" class="form-control form-control-sm edit-price" value="${data.price ?? 0}">
             </td>
             <td class="edit-subtotal">Rp 0</td>
             <td>
@@ -716,73 +739,19 @@ function updateEditRow(row) {
    TOTAL
 ============================ */
 function calcEditTotals() {
+    let subtotal = 0;
 
-    let subTotal = 0;
-
-    // HITUNG SUBTOTAL ITEM
     $("#editItemsTable tbody tr").each(function () {
-        let qty   = parseFloat($(this).find(".edit-qty").val()) || 0;
+        let qty = parseFloat($(this).find(".edit-qty").val()) || 0;
         let price = parseFloat($(this).find(".edit-price").val()) || 0;
-        subTotal += qty * price;
+        subtotal += qty * price;
     });
 
-    // AMBIL INPUT
-    let discountValue = parseFloat($("#discountValue").val()) || 0;
-    let discountType  = $("#discountType").val();
-    let ppnPercent    = parseFloat($("#ppnValue").val()) || 0;
-    let payAmount     = parseFloat($("#payAmount").val()) || 0;
-
-    // HITUNG DISKON
-    let discountAmount = 0;
-    if (discountType === "percent") {
-        discountAmount = subTotal * (discountValue / 100);
-    } else {
-        discountAmount = discountValue;
-    }
-
-    if (discountAmount > subTotal) discountAmount = subTotal;
-
-    // SETELAH DISKON
-    let afterDiscount = subTotal - discountAmount;
-
-    // HITUNG PPN
-    let ppnAmount = afterDiscount * (ppnPercent / 100);
-
-    // GRAND TOTAL
-    let grandTotal = afterDiscount + ppnAmount;
-
-    // KEMBALIAN
-    let changeAmount = payAmount - grandTotal;
-
-    // TAMPILKAN KE UI
-    $("#subTotal").text("Rp " + subTotal.toLocaleString());
-    $("#afterDiscount").text("Rp " + afterDiscount.toLocaleString());
-    $("#afterPpn").text("Rp " + grandTotal.toLocaleString());
-    $("#chargeAmount").text("Rp " + grandTotal.toLocaleString());
-    $("#changeAmount").text(
-        "Rp " + (changeAmount > 0 ? changeAmount : 0).toLocaleString()
-    );
-
-    // SIMPAN KE DATA ATTR (UNTUK SAVE)
-    $("#editTransactionModal").data({
-        sub_total: subTotal,
-        discount_value: discountAmount,
-        discount_type: discountType,
-        total_after_discount: afterDiscount,
-        ppn: ppnAmount,
-        total_after_ppn: grandTotal,
-        pay_amount: payAmount,
-        change_amount: changeAmount > 0 ? changeAmount : 0
-    });
+    $("#editSubTotal").text("Rp " + subtotal.toLocaleString());
+    $("#editDiscount").text("Rp 0");
+    $("#editPpn").text("Rp 0");
+    $("#editGrandTotal").text("Rp " + subtotal.toLocaleString());
 }
-
-$("#discountValue, #discountType, #ppnValue, #payAmount")
-    .on("input change", function () {
-        calcEditTotals();
-    });
-
-
-
 
 /* ============================
    EVENTS
@@ -799,68 +768,41 @@ $("#editItemsTable")
         calcEditTotals();
     });
 
-    $("#editItemsTable").on("change", ".edit-product", function () {
-    let row = $(this).closest("tr");
-    let productId = $(this).val();
-
-    let product = products.find(p => p.id == productId);
-
-    if (product) {
-        row.find(".edit-price").val(product.harga_jual);
-    } else {
-        row.find(".edit-price").val(0);
-    }
-
-    updateEditRow(row);
-    calcEditTotals();
-});
-
-$("#payAmount").on("input", function () {
-    let pay = parseFloat($(this).val()) || 0;
-    let total = $("#editTransactionModal").data("total_after_ppn") || 0;
-
-    if (pay < total) {
-        $("#paymentWarning").remove();
-        $(this).after(`
-            <small id="paymentWarning" class="text-danger">
-                ⚠ Pembayaran kurang
-            </small>
-        `);
-    } else {
-        $("#paymentWarning").remove();
-    }
-});
-
-
+/* ============================
+   SAVE UPDATE
+============================ */
 $("#btnUpdateTransaction").click(function () {
     const id = $("#editTransactionId").val();
-    let modalData = $("#editTransactionModal").data();
 
     let payload = {
-        customer_id: $("#editCustomer").val(),
         status: $("#editStatus").val(),
-        payment_method: $("#paymentMethod").val(),
-        note: $("#orderNote").val(),
-
-        sub_total: modalData.sub_total,
-        discount_value: modalData.discount_value,
-        discount_type: modalData.discount_type,
-        total_after_discount: modalData.total_after_discount,
-        ppn: modalData.ppn,
-        total_after_ppn: modalData.total_after_ppn,
-        pay_amount: modalData.pay_amount,
-        change_amount: modalData.change_amount,
-
-        items: []
+        items: [],
+        sub_total: 0,
+        discount_value: 0,
+        discount_type: "fixed",
+        total_after_discount: 0,
+        ppn: 0,
+        total_after_ppn: 0,
+        pay_amount: 0,
+        change_amount: 0
     };
 
     $("#editItemsTable tbody tr").each(function () {
+        let qty = parseFloat($(this).find(".edit-qty").val()) || 0;
+        let price = parseFloat($(this).find(".edit-price").val()) || 0;
+
         payload.items.push({
             product_id: $(this).find(".edit-product").val(),
-            qty: parseFloat($(this).find(".edit-qty").val()) || 0,
-            price: parseFloat($(this).find(".edit-price").val()) || 0
+            qty: qty,
+            price: price
         });
+
+        payload.sub_total += qty * price;
     });
+
+    payload.total_after_discount = payload.sub_total;
+    payload.total_after_ppn = payload.sub_total;
+    payload.pay_amount = payload.sub_total;
 
     $.ajax({
         url: `/transactions/${id}`,
@@ -870,17 +812,11 @@ $("#btnUpdateTransaction").click(function () {
             Swal.fire("Sukses", "Transaksi berhasil diperbarui", "success");
             editModal.hide();
             loadTransactions();
-            setTimeout(() => {
-        location.reload();
-    }, 800);
         },
         error: function (err) {
             Swal.fire("Error", err.responseJSON?.message ?? "Gagal update", "error");
         }
     });
-});
-
-
 });
 </script>
 

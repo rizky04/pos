@@ -65,8 +65,6 @@ class TransactionController extends Controller
             'pay_amount' => 'required',
             'change_amount' => 'required',
             'status' => 'required',
-            'payment_method' => 'required',
-            'note' => 'nullable',
             // 'date_transaction' => 'required',
         ]);
 
@@ -89,8 +87,6 @@ class TransactionController extends Controller
             'change_amount' => $request->change_amount,
             'status' => $request->status,
             'date_transaction' => now(),
-            'payment_method' => $request->payment_method,
-            'note' => $request->note
         ]);
 
         // SIMPAN ITEM
@@ -239,8 +235,6 @@ public function update(Request $request, $id)
         'pay_amount' => 'required',
         'change_amount' => 'required',
         'status' => 'required',
-        'payment_method' => 'required',
-        'note' => 'nullable',
     ]);
 
     DB::beginTransaction();
@@ -285,8 +279,6 @@ public function update(Request $request, $id)
             'pay_amount' => $request->pay_amount,
             'change_amount' => $request->change_amount,
             'status' => $request->status,
-            'payment_method' => $request->payment_method,
-            'note' => $request->note
         ]);
 
         /**

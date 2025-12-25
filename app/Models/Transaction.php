@@ -26,6 +26,9 @@ class Transaction extends Model
         'pay_amount',
         'change_amount',
         'status',
+        'date_transaction',
+        'note',
+        'payment_method',
     ];
 
     public $incrementing = false;

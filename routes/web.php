@@ -168,6 +168,8 @@ Route::get('/purchase-payments/{id}/print', [PurchasePaymentController::class, '
     Route::get('/transactions', [TransactionController::class, 'getData'])->name('transactions.data');
     Route::get('/transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
     Route::get('/list/transactions', [TransactionController::class, 'list'])->name('list.transactions');
+    Route::put('/transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
+
 
     Route::get('/select/products', [SelectController::class, 'product']);
 Route::get('/select/suppliers', [SelectController::class, 'supplier']);

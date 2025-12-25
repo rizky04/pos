@@ -845,69 +845,6 @@ a {
 }
 
 
-/* ================================
-   DESKTOP MODE
-================================ */
-@media (min-width: 769px) {
-
-    /* Matikan pos-wrapper di desktop */
-    .pos-wrapper {
-        display: none !important;
-    }
-
-    /* ROOT LAYOUT */
-    .layout-root {
-        display: grid;
-        grid-template-columns: 78px 1fr;
-        gap: 24px;
-        padding: 24px;
-        max-width: 1600px;
-        margin: 0 auto;
-        min-height: 100vh;
-    }
-
-    /* SIDEBAR */
-    .sidebar-wrapper {
-        background: #f8fafc;
-        border-radius: 24px;
-        padding: 14px 10px;
-        height: calc(100vh - 48px);
-        position: sticky;
-        top: 24px;
-    }
-
-    /* CONTENT */
-    .content-card {
-        background: #ffffff;
-        border-radius: 28px;
-        padding: 24px;
-        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-        min-height: 100%;
-    }
-}
-
-/* ================================
-   SIDEBAR PUTIH (DESKTOP & MOBILE)
-================================ */
-
-/* Desktop sidebar */
-@media (min-width: 769px) {
-    .sidebar,
-    .sidebar-wrapper {
-        background: #ffffff !important;
-        /* box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); */
-    }
-}
-
-/* Mobile bottom nav */
-@media (max-width: 768px) {
-    .sidebar {
-        background: #ffffff !important;
-        box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.12);
-    }
-}
-
-
     </style>
     <link rel="stylesheet" href="{{ asset('assets/assets/css/main.style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/assets/css/pos.css') }}">
@@ -917,7 +854,7 @@ a {
 
 <body>
 
-{{-- <div class="pos-wrapper">
+<div class="pos-wrapper">
 
     <!-- SIDEBAR -->
  @include('layouts.sidebar')
@@ -925,31 +862,6 @@ a {
     <!-- MAIN CONTENT -->
 
     @yield('content')
-</div> --}}
-
-
-<!-- DESKTOP LAYOUT -->
-<div class="layout-root">
-
-    <div class="sidebar-wrapper">
-        @include('layouts.sidebar')
-    </div>
-
-    <div class="content-area">
-        <div class="content-card">
-            @yield('content')
-        </div>
-    </div>
-
-</div>
-
-<!-- MOBILE LAYOUT (TETAP PAKAI YANG LAMA) -->
-<div class="pos-wrapper d-md-none">
-
-    @include('layouts.sidebar')
-
-    @yield('content')
-
 </div>
 
 <!-- JS -->

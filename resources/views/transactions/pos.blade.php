@@ -151,7 +151,7 @@
                 <span>PPN (%)</span>
                 <span>
                     <input type="number" min="0" class="form-control form-control-sm text-end"
-                           id="ppnValue" value="11" style="width:90px;">
+                           id="ppnValue" value="0" style="width:90px;">
                 </span>
             </div>
 
@@ -181,10 +181,30 @@
                         <option value="void">Batal</option>
                     </select>
             </div>
+
+             <div class="summary-row align-items-center">
+                <span>Metode Bayar</span>
+               <select id="paymentMethod" class="form-select form-select-sm" style="width:70px;">
+                        <option value="cash">Cash</option>
+                        <option value="transfer">Transfer</option>
+                        <option value="qris">QRIS</option>
+                        <option value="debit card">Kartu Debit</option>
+                    </select>
+            </div>
         </div>
+<div class="mt-2">
+    <label style="font-size:12px;font-weight:600;">Catatan</label>
+    <textarea
+        id="orderNote"
+        class="form-control form-control-sm"
+        rows="2"
+        placeholder="Contoh: Tanpa gula, bungkus terpisah, bayar nanti..."
+        style="font-size:12px; resize:none;"
+    ></textarea>
+</div>
 
         <button class="btn-charge" id="btnCharge">
-            Charge <strong id="chargeAmount">Rp 0</strong>
+            Total <strong id="chargeAmount">Rp 0</strong>
             <span><i class="bi bi-arrow-right-circle-fill"></i></span>
         </button>
     </aside>
@@ -560,6 +580,8 @@ $('#orderList .order-item').each(function () {
 
 let payload = {
     status: $('#status').val(),
+    payment_method: $('#paymentMethod').val(),
+    note: $('#orderNote').val() || null,
     customer_id: $('#customerSelect').val() || null,
     items: items,
 

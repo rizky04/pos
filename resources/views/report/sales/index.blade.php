@@ -8,6 +8,25 @@
         <h6>List, Kasir, Laba Kotor & Bersih</h6>
     </div>
 </div>
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row align-items-end">
+            <div class="col-md-4">
+                <label>Dari Tanggal</label>
+                <input type="date" id="start_date" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label>Sampai Tanggal</label>
+                <input type="date" id="end_date" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" id="btnFilter">
+                    🔍 Terapkan Filter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     {{-- TAB KIRI --}}
@@ -139,6 +158,23 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    $('#btnFilter').on('click', function(){
+    loadSales();
+    loadKasir();
+    loadLabaKotor();
+    loadLabaBersih();
+    loadChartSales();
+    loadChartKasir();
+    loadChartLaba();
+});
+
+    function getDateFilter(){
+    return {
+        start_date: $('#start_date').val(),
+        end_date: $('#end_date').val()
+    }
+}
+
 function rupiah(v){
     return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(v);
 }
@@ -162,8 +198,31 @@ $('.nav-link').on('click', function(){
 });
 
 /* ================= LIST ================= */
+// function loadSales(page = 1){
+//     $.get("{{ route('sales.data') }}",{page},res=>{
+//         let rows='',i=(res.current_page-1)*res.per_page;
+//         res.data.forEach(s=>{
+//             rows+=`
+//             <tr>
+//                 <td>${++i}</td>
+//                 <td>${s.sales_date}</td>
+//                 <td>${s.nomor_sales}</td>
+//                 <td>${s.client?.nama_client || '-'}</td>
+//                 <td>${s.status_bayar}</td>
+//                 <td>${rupiah(s.total)}</td>
+//                 <td>${rupiah(s.total_paid)}</td>
+//                 <td>${rupiah(s.due_amount)}</td>
+//                 <td><button class="btn btn-sm btn-info">👁</button></td>
+//             </tr>`;
+//         });
+//         $('#sales-table tbody').html(rows);
+//     });
+// }
 function loadSales(page = 1){
-    $.get("{{ route('sales.data') }}",{page},res=>{
+    $.get("{{ route('sales.data') }}", {
+        page,
+        ...getDateFilter()
+    }, res => {
         let rows='',i=(res.current_page-1)*res.per_page;
         res.data.forEach(s=>{
             rows+=`
@@ -183,9 +242,24 @@ function loadSales(page = 1){
     });
 }
 
+
 /* ================= KASIR ================= */
+// function loadKasir(){
+//     $.get('/sales/report/kasir',res=>{
+//         let rows='';
+//         res.forEach(r=>{
+//             rows+=`
+//             <tr>
+//                 <td>${r.user?.name || '-'}</td>
+//                 <td>${r.total_transaksi}</td>
+//                 <td>${rupiah(r.total_penjualan)}</td>
+//             </tr>`;
+//         });
+//         $('#kasir-body').html(rows);
+//     });
+// }
 function loadKasir(){
-    $.get('/sales/report/kasir',res=>{
+    $.get('/sales/report/kasir', getDateFilter(), res=>{
         let rows='';
         res.forEach(r=>{
             rows+=`
@@ -199,16 +273,32 @@ function loadKasir(){
     });
 }
 
+
 /* ================= LABA KOTOR ================= */
+// function loadLabaKotor(){
+//     $.get('/sales/report/laba-kotor',res=>{
+//         $('#laba-kotor').text(rupiah(res.laba_kotor));
+//     });
+// }
 function loadLabaKotor(){
-    $.get('/sales/report/laba-kotor',res=>{
+    $.get('/sales/report/laba-kotor', getDateFilter(), res=>{
         $('#laba-kotor').text(rupiah(res.laba_kotor));
     });
 }
 
+
 /* ================= LABA BERSIH ================= */
+// function loadLabaBersih(){
+//     $.get('/sales/report/laba-bersih',res=>{
+//         $('#total-penjualan').text(rupiah(res.total_penjualan));
+//         $('#hpp').text(rupiah(res.hpp));
+//         $('#diskon').text(rupiah(res.diskon));
+//         $('#ppn').text(rupiah(res.ppn));
+//         $('#laba-bersih').text(rupiah(res.laba_bersih));
+//     });
+// }
 function loadLabaBersih(){
-    $.get('/sales/report/laba-bersih',res=>{
+    $.get('/sales/report/laba-bersih', getDateFilter(), res=>{
         $('#total-penjualan').text(rupiah(res.total_penjualan));
         $('#hpp').text(rupiah(res.hpp));
         $('#diskon').text(rupiah(res.diskon));
@@ -217,14 +307,40 @@ function loadLabaBersih(){
     });
 }
 
+
 $(document).ready(()=>loadSales());
 
 let chartSales, chartKasir, chartLaba;
 /* ================= GRAFIK ================= */
-function loadChartSales(){
-    $.get("{{ route('sales.data') }}",res=>{
-        let labels=[], totals=[];
+// function loadChartSales(){
+//     $.get("{{ route('sales.data') }}",res=>{
+//         let labels=[], totals=[];
 
+//         res.data.forEach(r=>{
+//             labels.push(r.sales_date);
+//             totals.push(r.total);
+//         });
+
+//         if(chartSales) chartSales.destroy();
+
+//         chartSales = new Chart(document.getElementById('chartSales'),{
+//             type:'line',
+//             data:{
+//                 labels:labels,
+//                 datasets:[{
+//                     label:'Total Penjualan',
+//                     data:totals,
+//                     fill:true,
+//                     tension:0.3
+//                 }]
+//             }
+//         });
+//     });
+// }
+
+function loadChartSales(){
+    $.get("{{ route('sales.data') }}", getDateFilter(), res=>{
+        let labels=[], totals=[];
         res.data.forEach(r=>{
             labels.push(r.sales_date);
             totals.push(r.total);
@@ -232,24 +348,49 @@ function loadChartSales(){
 
         if(chartSales) chartSales.destroy();
 
-        chartSales = new Chart(document.getElementById('chartSales'),{
+        chartSales = new Chart(chartSalesEl,{
             type:'line',
             data:{
-                labels:labels,
+                labels,
                 datasets:[{
                     label:'Total Penjualan',
                     data:totals,
-                    fill:true,
-                    tension:0.3
+                    tension:0.3,
+                    fill:true
                 }]
             }
         });
     });
 }
-function loadChartKasir(){
-    $.get('/sales/report/kasir',res=>{
-        let labels=[], totals=[];
 
+
+// function loadChartKasir(){
+//     $.get('/sales/report/kasir',res=>{
+//         let labels=[], totals=[];
+
+//         res.forEach(r=>{
+//             labels.push(r.user?.name || 'Kasir');
+//             totals.push(r.total_penjualan);
+//         });
+
+//         if(chartKasir) chartKasir.destroy();
+
+//         chartKasir = new Chart(document.getElementById('chartKasir'),{
+//             type:'bar',
+//             data:{
+//                 labels:labels,
+//                 datasets:[{
+//                     label:'Total Penjualan',
+//                     data:totals
+//                 }]
+//             }
+//         });
+//     });
+// }
+
+function loadChartKasir(){
+    $.get('/sales/report/kasir', getDateFilter(), res=>{
+        let labels=[], totals=[];
         res.forEach(r=>{
             labels.push(r.user?.name || 'Kasir');
             totals.push(r.total_penjualan);
@@ -257,23 +398,37 @@ function loadChartKasir(){
 
         if(chartKasir) chartKasir.destroy();
 
-        chartKasir = new Chart(document.getElementById('chartKasir'),{
+        chartKasir = new Chart(chartKasirEl,{
             type:'bar',
             data:{
-                labels:labels,
-                datasets:[{
-                    label:'Total Penjualan',
-                    data:totals
-                }]
+                labels,
+                datasets:[{ label:'Total Penjualan', data:totals }]
             }
         });
     });
 }
+
+
+// function loadChartLaba(){
+//     $.get('/sales/report/laba-bersih',res=>{
+//         if(chartLaba) chartLaba.destroy();
+
+//         chartLaba = new Chart(document.getElementById('chartLaba'),{
+//             type:'doughnut',
+//             data:{
+//                 labels:['Laba Kotor','Laba Bersih'],
+//                 datasets:[{
+//                     data:[res.laba_kotor, res.laba_bersih]
+//                 }]
+//             }
+//         });
+//     });
+// }
 function loadChartLaba(){
-    $.get('/sales/report/laba-bersih',res=>{
+    $.get('/sales/report/laba-bersih', getDateFilter(), res=>{
         if(chartLaba) chartLaba.destroy();
 
-        chartLaba = new Chart(document.getElementById('chartLaba'),{
+        chartLaba = new Chart(chartLabaEl,{
             type:'doughnut',
             data:{
                 labels:['Laba Kotor','Laba Bersih'],
@@ -284,6 +439,7 @@ function loadChartLaba(){
         });
     });
 }
+
 
 </script>
 @endpush
