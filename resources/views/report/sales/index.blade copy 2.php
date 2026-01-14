@@ -186,6 +186,25 @@ function rupiah(v){
     return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(v);
 }
 
+/* ================= TAB SWITCH ================= */
+// $('.nav-link').on('click', function(){
+//     $('.nav-link').removeClass('active');
+//     $(this).addClass('active');
+
+//     $('.tab-content').addClass('d-none');
+//     $('#tab-' + $(this).data('tab')).removeClass('d-none');
+
+//     if($(this).data('tab') === 'kasir') loadKasir();
+//     if($(this).data('tab') === 'kotor') loadLabaKotor();
+//     if($(this).data('tab') === 'bersih') loadLabaBersih();
+//      if(tab === 'grafik'){
+//         setTimeout(() => {
+//             loadChartSales();
+//             loadChartKasir();
+//             loadChartLaba();
+//         }, 100);
+//     }
+// });
 
 $('.nav-link').on('click', function () {
 
@@ -212,7 +231,26 @@ $('.nav-link').on('click', function () {
 
 
 /* ================= LIST ================= */
-
+// function loadSales(page = 1){
+//     $.get("{{ route('sales.data') }}",{page},res=>{
+//         let rows='',i=(res.current_page-1)*res.per_page;
+//         res.data.forEach(s=>{
+//             rows+=`
+//             <tr>
+//                 <td>${++i}</td>
+//                 <td>${s.sales_date}</td>
+//                 <td>${s.nomor_sales}</td>
+//                 <td>${s.client?.nama_client || '-'}</td>
+//                 <td>${s.status_bayar}</td>
+//                 <td>${rupiah(s.total)}</td>
+//                 <td>${rupiah(s.total_paid)}</td>
+//                 <td>${rupiah(s.due_amount)}</td>
+//                 <td><button class="btn btn-sm btn-info">👁</button></td>
+//             </tr>`;
+//         });
+//         $('#sales-table tbody').html(rows);
+//     });
+// }
 function loadSales(page = 1){
     $.get("{{ route('sales.data') }}", {
         page,
@@ -239,7 +277,20 @@ function loadSales(page = 1){
 
 
 /* ================= KASIR ================= */
-
+// function loadKasir(){
+//     $.get('/sales/report/kasir',res=>{
+//         let rows='';
+//         res.forEach(r=>{
+//             rows+=`
+//             <tr>
+//                 <td>${r.user?.name || '-'}</td>
+//                 <td>${r.total_transaksi}</td>
+//                 <td>${rupiah(r.total_penjualan)}</td>
+//             </tr>`;
+//         });
+//         $('#kasir-body').html(rows);
+//     });
+// }
 function loadKasir(){
     $.get('/sales/report/kasir', getDateFilter(), res=>{
         let rows='';
@@ -270,7 +321,15 @@ function loadLabaKotor(){
 
 
 /* ================= LABA BERSIH ================= */
-
+// function loadLabaBersih(){
+//     $.get('/sales/report/laba-bersih',res=>{
+//         $('#total-penjualan').text(rupiah(res.total_penjualan));
+//         $('#hpp').text(rupiah(res.hpp));
+//         $('#diskon').text(rupiah(res.diskon));
+//         $('#ppn').text(rupiah(res.ppn));
+//         $('#laba-bersih').text(rupiah(res.laba_bersih));
+//     });
+// }
 function loadLabaBersih(){
     $.get('/sales/report/laba-bersih', getDateFilter(), res=>{
         $('#total-penjualan').text(rupiah(res.total_penjualan));

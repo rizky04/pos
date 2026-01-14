@@ -148,7 +148,6 @@
 </div>
 
 <!-- MODAL EDIT TRANSAKSI -->
-<!-- MODAL EDIT TRANSAKSI -->
 <div class="modal fade" id="editTransactionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
@@ -165,16 +164,13 @@
                         <label class="form-label">Customer</label>
                         <select id="editCustomer" class="form-select">
                             <option value="">Umum</option>
-                            @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}">{{ $customer->nama }}</option>
-                            @endforeach
                         </select>
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label">Kode Transaksi</label>
-                        <input type="text" id="editKode" class="form-control" readonly>
-                    </div>
+        <label class="form-label">Kode Transaksi</label>
+        <input type="text" id="editKode" class="form-control" readonly>
+    </div>
                 </div>
 
                 <hr>
@@ -182,7 +178,7 @@
                 <!-- ITEM TABLE -->
                 <div class="d-flex justify-content-between mb-1">
                     <b>Item Transaksi</b>
-                    <button type="button" class="btn-soft light btn-sm" id="btnAddEditItem">
+                    <button class="btn-soft light btn-sm" id="btnAddEditItem">
                         <i class="bi bi-plus-circle"></i> Tambah Item
                     </button>
                 </div>
@@ -204,89 +200,99 @@
 
                 <hr>
 
-                <!-- TOTAL SECTION -->
+                <!-- TOTAL -->
+
                 <div class="row">
                     <div class="col-md-6"></div>
                     <div class="col-md-6">
                         <div class="mt-2">
-                            <div class="summary-row">
-                                <span>Sub Total</span>
-                                <span id="subTotal">Rp 0</span>
-                            </div>
+            <div class="summary-row">
+                <span>Sub Total</span>
+                <span id="subTotal">Rp 0</span>
+            </div>
 
-                            <div class="summary-row align-items-center">
-                                <span>Discount</span>
-                                <span class="d-flex align-items-center gap-1">
-                                    <input type="number" min="0" step="0.01"
-                                           class="form-control form-control-sm text-end discount-input"
-                                           id="discountValue" value="0" style="width:90px;">
-                                    <select id="discountType" class="form-select form-select-sm discount-input" style="width:70px;">
-                                        <option value="rp" selected>Rp</option>
-                                        <option value="percent">%</option>
-                                    </select>
-                                </span>
-                            </div>
+            <div class="summary-row align-items-center">
+                <span>Discount</span>
+                <span class="d-flex align-items-center gap-1">
+                    <input type="number" min="0" class="form-control form-control-sm text-end"
+                           id="discountValue" value="0" style="width:90px;">
+                    <select id="discountType" class="form-select form-select-sm" style="width:70px;">
+                        <option value="rp" selected>Rp</option>
+                        <option value="percent">%</option>
+                    </select>
+                </span>
+            </div>
 
-                            <div class="summary-row">
-                                <span>Setelah Discount</span>
-                                <strong id="afterDiscount">Rp 0</strong>
-                            </div>
+            <div class="summary-row">
+                <span>Setelah Discount</span>
+                <strong id="afterDiscount">Rp 0</strong>
+            </div>
 
-                            <div class="summary-row align-items-center">
-                                <span>PPN (%)</span>
-                                <span>
-                                    <input type="number" min="0" step="0.01"
-                                           class="form-control form-control-sm text-end ppn-input"
-                                           id="ppnValue" value="11" style="width:90px;">
-                                </span>
-                            </div>
+            <div class="summary-row align-items-center">
+                <span>PPN (%)</span>
+                <span>
+                    <input type="number" min="0" class="form-control form-control-sm text-end"
+                           id="ppnValue" value="11" style="width:90px;">
+                </span>
+            </div>
 
-                            <div class="summary-row">
-                                <span>Total</span>
-                                <strong id="afterPpn">Rp 0</strong>
-                            </div>
+            <div class="summary-row">
+                <span>Total</span>
+                <strong id="afterPpn">Rp 0</strong>
+            </div>
 
-                            <div class="summary-row align-items-center">
-                                <span>Bayar</span>
-                                <span>
-                                    <input type="number" min="0" step="0.01"
-                                           class="form-control form-control-sm text-end pay-input"
-                                           id="payAmount" placeholder="0" style="width:120px;">
-                                </span>
-                            </div>
+            <div class="summary-row align-items-center">
+                <span>Bayar</span>
+                <span>
+                    <input type="number" min="0" class="form-control form-control-sm text-end"
+                           id="payAmount" placeholder="0" style="width:120px;">
+                </span>
+            </div>
 
-                            <div class="summary-row">
-                                <span>Kembalian</span>
-                                <strong id="changeAmount">Rp 0</strong>
-                            </div>
+            <div class="summary-row">
+                <span>Kembalian</span>
+                <strong id="changeAmount">Rp 0</strong>
+            </div>
 
-                            <div class="summary-row align-items-center">
-                                <span>Status Bayar</span>
-                                <select id="editStatus" class="form-select form-select-sm">
-                                    <option value="paid">Lunas</option>
-                                    <option value="unpaid">Hutang</option>
-                                    <option value="void">Batal</option>
-                                </select>
-                            </div>
+              <div class="summary-row align-items-center">
+                <span>Status Bayar</span>
+               <select id="editStatus" class="form-select form-select-sm" style="width:70px;">
+                        <option value="paid" >Lunas</option>
+                        <option value="unpaid">Hutang</option>
+                        <option value="void">Batal</option>
+                    </select>
+            </div>
 
-                            <div class="summary-row align-items-center">
-                                <span>Metode Bayar</span>
-                                <select id="paymentMethod" class="form-select form-select-sm">
-                                    <option value="cash">Cash</option>
-                                    <option value="transfer">Transfer</option>
-                                    <option value="qris">QRIS</option>
-                                    <option value="debit card">Kartu Debit</option>
-                                </select>
-                            </div>
+             <div class="summary-row align-items-center">
+                <span>Metode Bayar</span>
+               <select id="paymentMethod" class="form-select form-select-sm" style="width:70px;">
+                        <option value="cash">Cash</option>
+                        <option value="transfer">Transfer</option>
+                        <option value="qris">QRIS</option>
+                        <option value="debit card">Kartu Debit</option>
+                    </select>
+            </div>
+  <div class="summary-row">
+                <span>Total</span>
+               <strong id="chargeAmount">Rp 0</strong>
+            </div>
 
-                            <div class="mt-2">
-                                <label style="font-size:12px;font-weight:600;">Catatan</label>
-                                <textarea id="orderNote" class="form-control form-control-sm" rows="2" style="font-size:12px; resize:none;"></textarea>
-                            </div>
-                        </div>
+<div class="mt-2">
+    <label style="font-size:12px;font-weight:600;">Catatan</label>
+    <textarea
+        id="orderNote"
+        class="form-control form-control-sm"
+        rows="2"
+        style="font-size:12px; resize:none;"
+    ></textarea>
+</div>
+        </div>
+
                     </div>
                 </div>
+
             </div>
+
 
             <div class="modal-footer">
                 <button class="btn-soft light" data-bs-dismiss="modal">Batal</button>
@@ -295,6 +301,8 @@
         </div>
     </div>
 </div>
+
+
 
 <style>
 @media print {
@@ -606,76 +614,34 @@ $("#transactionTable").on("click", "[data-action='print']", function () {
 
 
 
-/* =====================================================
- * EDIT TRANSAKSI - FUNGSI UTAMA
- * ===================================================== */
-/* =====================================================
- * EDIT TRANSAKSI - FUNGSI UTAMA
- * ===================================================== */
+</script>
+
+<script>
+    // ========================================
+// EDIT TRANSAKSI - COMPLETE FIX
+// ========================================
 
 let editModal;
-let editTransactionData = {};
-let products = []; // Kosongkan array, akan diisi via AJAX
-
-// Fungsi untuk load produk dari API
-function loadProducts(callback = null) {
-    $.ajax({
-        url: '{{ route("select.product") }}', // Pastikan route ini ada
-        method: 'GET',
-        success: function(data) {
-            products = data;
-            console.log('Products loaded successfully:', products.length);
-            if (callback && typeof callback === 'function') {
-                callback();
-            }
-        },
-        error: function(err) {
-            console.error('Failed to load products:', err);
-            // Fallback: coba load dari variabel Blade jika ada
-            try {
-                products = @json($products ?? []);
-                console.log('Using fallback products:', products.length);
-            } catch (e) {
-                console.error('Fallback also failed:', e);
-                products = [];
-            }
-        }
-    });
-}
-
-// Fungsi untuk membuat options produk
-function buildProductOptions(selectedId = null) {
-    let options = '<option value="">Pilih Produk</option>';
-
-    if (products && products.length > 0) {
-        products.forEach(product => {
-            const selected = selectedId == product.id ? 'selected' : '';
-            const price = product.harga_jual || product.harga_modal || 0;
-            options += `<option value="${product.id}" data-price="${price}" ${selected}>${product.nama}</option>`;
-        });
-    } else {
-        options = '<option value="">Produk tidak tersedia</option>';
-    }
-
-    return options;
-}
+let products = @json($products ?? []);
 
 $(function () {
-    editModal = new bootstrap.Modal(document.getElementById('editTransactionModal'));
+    editModal = new bootstrap.Modal(
+        document.getElementById('editTransactionModal'),
+        {
+            backdrop: 'static',
+            keyboard: false
+        }
+    );
 
-    // Pre-load produk saat halaman siap
-    loadProducts();
+    // Event ketika modal ditutup
+    $('#editTransactionModal').on('hidden.bs.modal', function () {
+        resetEditModal();
+    });
 });
 
-// Fungsi untuk membuka modal edit
-function openEditModal(transactionId) {
-    // Tampilkan loading indicator
-    $('#editItemsTable tbody').html('<tr><td colspan="5" class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Memuat...</td></tr>');
-
-    // Reset data
-    editTransactionData = {};
-
-    // Reset form
+// RESET MODAL - dipanggil saat modal ditutup
+function resetEditModal() {
+    $('#editItemsTable tbody').empty();
     $('#editTransactionId').val('');
     $('#editCustomer').val('');
     $('#editKode').val('');
@@ -687,351 +653,341 @@ function openEditModal(transactionId) {
     $('#editStatus').val('paid');
     $('#paymentMethod').val('cash');
 
-    // Reset tampilan total
-    updateSummaryDisplay(0, 0, 0, 0, 0);
+    // Reset summary display
+    $('#subTotal').text('Rp 0');
+    $('#afterDiscount').text('Rp 0');
+    $('#afterPpn').text('Rp 0');
+    $('#chargeAmount').text('Rp 0');
+    $('#changeAmount').text('Rp 0');
+}
+
+// OPEN EDIT MODAL
+$("#transactionTable").on("click", ".btn-edit", function () {
+    const id = $(this).data("id");
+    openEditModal(id);
+});
+
+function openEditModal(transactionId) {
+    // Reset dulu sebelum load data baru
+    resetEditModal();
 
     // Tampilkan modal
     editModal.show();
 
-    // Pastikan produk sudah diload sebelum melanjutkan
-    if (products.length === 0) {
-        loadProducts(function() {
-            loadTransactionDetails(transactionId);
-        });
-    } else {
-        loadTransactionDetails(transactionId);
-    }
-}
-
-// Fungsi untuk load detail transaksi setelah produk tersedia
-function loadTransactionDetails(transactionId) {
+    // Fetch data transaksi
     $.ajax({
         url: `/transactions/${transactionId}`,
         method: 'GET',
-        success: function(res) {
+        success: function(trx) {
+            console.log('Transaction loaded:', trx);
 
-            console.log('Transaction details loaded:', res);
-             $('#editTransactionId').val(res.id);
+            // Set form values
+            $('#editTransactionId').val(trx.id);
+            $('#editKode').val(trx.kode);
+            $('#editCustomer').val(trx.customer_id || '');
+            $('#editStatus').val(trx.status);
+            $('#paymentMethod').val(trx.payment_method || 'cash');
+            $('#orderNote').val(trx.note || '');
 
-            // 🔥 1️⃣ WAJIB: BERSIHKAN TOTAL
-            $('#editItemsTable tbody').html('');
-            // RESET TOTAL (INI YANG SELAMA INI NYANTOL)
-            $('#sub_total').val(0);
-            $('#discount_value').val(0);
-            $('#total_after_discount').val(0);
-            $('#ppn').val(0);
-            $('#total_after_ppn').val(0);
-            $('#pay_amount').val(0);
-            $('#change_amount').val(0);
+            // Set discount & PPN
+            $('#discountValue').val(trx.discount_value || 0);
+            $('#discountType').val(trx.discount_type || 'rp');
+            $('#ppnValue').val(trx.ppn || 0);
+            $('#payAmount').val(trx.pay_amount || 0);
 
-            // Isi form
-            // $('#editTransactionId').val(res.id);
-            $('#editKode').val(res.kode);
-            $('#editCustomer').val(res.customer_id || '');
-            $('#editStatus').val(res.status);
-            $('#paymentMethod').val(res.payment_method);
-            $('#orderNote').val(res.note);
+            // Tambahkan items
+            if (trx.items && trx.items.length > 0) {
+                trx.items.forEach(item => {
+                    addEditItemRow(item);
+                });
+            }
 
-            // Isi discount dan PPN
-            $('#discountValue').val(res.discount_value || 0);
-            $('#discountType').val(res.discount_type);
-            $('#ppnValue').val(res.ppn || 0);
-            $('#payAmount').val(res.pay_amount || 0);
-
-
-            // isi ulang dari database
-            res.items.forEach(item => {
-                addItemToTable(item);
-            });
-
-            calculateTotals();
+            // Hitung ulang summary setelah semua item ditambahkan
+            setTimeout(() => {
+                calculateEditSummary();
+            }, 100);
+        },
+        error: function(err) {
+            console.error('Error loading transaction:', err);
+            alert('Gagal memuat data transaksi');
+            editModal.hide();
         }
     });
 }
 
+// ADD ITEM ROW
+function addEditItemRow(item = null) {
+    let rowId = 'row_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-function addItemToTable(item = null) {
+    // Build options untuk product select
+    let productOptions = '<option value="">Pilih Produk</option>';
+    products.forEach(p => {
+        productOptions += `<option value="${p.id}" data-price="${p.harga_jual}">${p.nama}</option>`;
+    });
 
-    const productOptions = buildProductOptions(item ? item.product_id : null);
-
-    const row = `
-    <tr>
+    let row = `
+    <tr data-id="${rowId}">
         <td>
-            <select class="form-select form-select-sm item-product">
+            <select class="form-select form-select-sm product-select">
                 ${productOptions}
             </select>
         </td>
         <td>
-            <input type="number" class="form-control form-control-sm item-qty"
-                   min="1" value="${item ? item.qty : 1}">
+            <input type="number" class="form-control form-control-sm qty" min="1" value="1">
         </td>
         <td>
-            <input type="number" class="form-control form-control-sm item-price"
-                   min="0" value="${item ? item.price : 0}">
+            <input type="number" class="form-control form-control-sm price" min="0" value="0" step="0.01">
         </td>
-        <td class="item-subtotal text-end fw-bold">Rp 0</td>
+        <td class="subtotal text-end fw-bold">Rp 0</td>
         <td>
-            <button type="button" class="btn btn-sm btn-danger btn-remove-item">
-                <i class="bi bi-trash"></i>
-            </button>
+            <button type="button" class="btn btn-sm btn-danger btn-remove">×</button>
         </td>
-    </tr>
-    `;
+    </tr>`;
 
     $('#editItemsTable tbody').append(row);
 
-    const lastRow = $('#editItemsTable tbody tr:last');
-    calculateRow(lastRow);
-}
+    let tr = $(`#editItemsTable tbody tr[data-id="${rowId}"]`);
 
+    // Jika ada data item, isi nilai-nilainya
+    if (item) {
+        tr.find('.product-select').val(item.product_id);
+        tr.find('.qty').val(item.qty);
+        tr.find('.price').val(item.price);
 
-
-// Fungsi untuk menghitung subtotal per row
-function calculateRow(row) {
-    const qty = parseFloat(row.find('.item-qty').val()) || 0;
-    const price = parseFloat(row.find('.item-price').val()) || 0;
-    const subtotal = qty * price;
-
-    row.find('.item-subtotal').text(formatRupiah(subtotal));
-
-    // Hitung ulang total keseluruhan
-    calculateTotals();
-}
-
-// Fungsi untuk menghitung total keseluruhan
-function calculateTotals() {
-//     let subTotal = 0;
-//        $('#editItemsTable tbody tr').each(function () {
-//         let rowSubtotal = parseFloat(
-//             $(this).find('.item-subtotal').text().replace(/[^0-9.-]+/g, '')
-//         ) || 0;
-
-//         subTotal += rowSubtotal;
-
-//         console.log(rowSubtotal);
-// console.log(subTotal);
-//     });
-
-
-//     $('#sub_total').val(subTotal);
-
-
-let subTotal = 0;
-
-$('#editItemsTable tbody tr').each(function () {
-    let rowSubtotal = parseFloat(
-        $(this)
-            .find('.item-subtotal')
-            .text()
-            .replace(/[^0-9,]/g, '') // sisakan angka & koma
-            .replace(/\./g, '')      // hapus pemisah ribuan
-            .replace(',', '.')       // jika pakai koma desimal
-    ) || 0;
-
-    subTotal += rowSubtotal;
-
-    console.log(rowSubtotal);
-    console.log(subTotal);
-});
-
-$('#sub_total').val(subTotal);
-
-
-    // Hitung discount
-    const discountValue = parseFloat($('#discountValue').val()) || 0;
-    const discountType = $('#discountType').val();
-    let discountAmount = 0;
-
-    if (discountType === 'percent') {
-        discountAmount = subTotal * (discountValue / 100);
-    } else {
-        discountAmount = discountValue;
+        console.log('Item added:', {
+            rowId: rowId,
+            product_id: item.product_id,
+            qty: item.qty,
+            price: item.price
+        });
     }
 
-    const afterDiscount = Math.max(0, subTotal - discountAmount);
-
-    // Hitung PPN
-    const ppnPercent = parseFloat($('#ppnValue').val()) || 0;
-    const ppnAmount = afterDiscount * (ppnPercent / 100);
-    const total = afterDiscount + ppnAmount;
-
-    // Hitung kembalian
-    const payAmount = parseFloat($('#payAmount').val()) || 0;
-    const changeAmount = Math.max(0, payAmount - total);
-
-    // Update tampilan
-    updateSummaryDisplay(subTotal, discountAmount, afterDiscount, total, changeAmount);
-
-    // Auto update status berdasarkan pembayaran
-    updatePaymentStatus(total, payAmount);
+    // Hitung row ini
+    calculateRow(tr);
 }
 
-// Fungsi untuk update tampilan summary
-function updateSummaryDisplay(subTotal, discountAmount, afterDiscount, total, changeAmount) {
+// CALCULATE ROW
+function calculateRow(tr) {
+    let qty = parseFloat(tr.find('.qty').val()) || 0;
+    let price = parseFloat(tr.find('.price').val()) || 0;
+    let subtotal = qty * price;
+
+    tr.find('.subtotal').text(formatRupiah(subtotal));
+    tr.data('subtotal', subtotal);
+
+    console.log('Row calculated:', {
+        row: tr.data('id'),
+        qty: qty,
+        price: price,
+        subtotal: subtotal
+    });
+
+    calculateEditSummary();
+}
+
+// CALCULATE SUMMARY
+function calculateEditSummary() {
+    let subTotal = 0;
+    let itemCount = 0;
+
+    // Hitung total dari semua baris yang ada
+    $('#editItemsTable tbody tr').each(function () {
+        let qty = parseFloat($(this).find('.qty').val()) || 0;
+        let price = parseFloat($(this).find('.price').val()) || 0;
+        let rowSubtotal = qty * price;
+
+        // Update subtotal di row
+        $(this).find('.subtotal').text(formatRupiah(rowSubtotal));
+        $(this).data('subtotal', rowSubtotal);
+
+        subTotal += rowSubtotal;
+        itemCount++;
+    });
+
+    console.log('Summary calculation:', {
+        itemCount: itemCount,
+        subTotal: subTotal
+    });
+
+    // Hitung discount
+    let discountVal = parseFloat($('#discountValue').val()) || 0;
+    let discountType = $('#discountType').val();
+
+    let discount = discountType === 'percent'
+        ? subTotal * (discountVal / 100)
+        : discountVal;
+
+    let afterDiscount = Math.max(0, subTotal - discount);
+
+    // Hitung PPN
+    let ppnPercent = parseFloat($('#ppnValue').val()) || 0;
+    let ppnAmount = afterDiscount * (ppnPercent / 100);
+    let total = afterDiscount + ppnAmount;
+
+    // Hitung kembalian
+    let pay = parseFloat($('#payAmount').val()) || 0;
+    let change = Math.max(0, pay - total);
+
+    // Update tampilan
     $('#subTotal').text(formatRupiah(subTotal));
     $('#afterDiscount').text(formatRupiah(afterDiscount));
     $('#afterPpn').text(formatRupiah(total));
-    $('#changeAmount').text(formatRupiah(changeAmount));
+    $('#chargeAmount').text(formatRupiah(total));
+    $('#changeAmount').text(formatRupiah(change));
+
+    console.log('Summary result:', {
+        subTotal: subTotal,
+        discount: discount,
+        afterDiscount: afterDiscount,
+        ppnAmount: ppnAmount,
+        total: total,
+        pay: pay,
+        change: change
+    });
 }
 
-// Fungsi untuk update status pembayaran otomatis
-function updatePaymentStatus(total, payAmount) {
-    if (payAmount >= total) {
-        $('#editStatus').val('paid');
-    } else if (payAmount > 0) {
-        $('#editStatus').val('unpaid');
-    } else {
-        $('#editStatus').val('unpaid');
-    }
-}
+// EVENT HANDLERS - Gunakan namespace untuk prevent duplicate
+$(document).off('input.editTrans change.editTrans', '.qty, .price');
+$(document).on('input.editTrans change.editTrans', '.qty, .price', function () {
+    let tr = $(this).closest('tr');
+    calculateRow(tr);
+});
 
-// Fungsi format rupiah
+$(document).off('change.editTrans', '.product-select');
+$(document).on('change.editTrans', '.product-select', function () {
+    let price = $(this).find(':selected').data('price') || 0;
+    let tr = $(this).closest('tr');
+    tr.find('.price').val(price);
+    calculateRow(tr);
+});
+
+$(document).off('click.editTrans', '.btn-remove');
+$(document).on('click.editTrans', '.btn-remove', function () {
+    let tr = $(this).closest('tr');
+    console.log('Removing row:', tr.data('id'));
+
+    // Hapus row
+    tr.remove();
+
+    // Hitung ulang summary
+    calculateEditSummary();
+});
+
+// Event untuk discount, PPN, dan payment
+$('#discountValue, #discountType, #ppnValue, #payAmount')
+    .off('input.editTrans change.editTrans')
+    .on('input.editTrans change.editTrans', function() {
+        calculateEditSummary();
+    });
+
+// Button tambah item
+$('#btnAddEditItem').off('click.editTrans').on('click.editTrans', function () {
+    addEditItemRow();
+});
+
+// Helper function
 function formatRupiah(number) {
     if (isNaN(number)) number = 0;
     return 'Rp ' + Math.round(number).toLocaleString('id-ID');
 }
 
-// Fungsi untuk mengumpulkan data item untuk submit
-function getItemsData() {
-    const items = [];
+// Auto set status berdasarkan pembayaran
+function autoSetStatus() {
+    let total = parseCurrency($('#afterPpn').text());
+    let pay = parseFloat($('#payAmount').val()) || 0;
 
-    $('#editItemsTable tbody tr:visible').each(function() {
-
-        const productId = $(this).find('.item-product').val();
-        const qty = parseInt($(this).find('.item-qty').val());
-        const price = parseInt($(this).find('.item-price').val());
-
-        if (!productId || qty <= 0 || price <= 0) return;
-
-        items.push({
-            product_id: productId,
-            qty: qty,
-            price: price
-        });
-    });
-
-    return items;
+    if (pay >= total) {
+        $('#editStatus').val('paid');
+    } else if (pay > 0) {
+        $('#editStatus').val('unpaid');
+    }
 }
 
+$('#payAmount').off('input.editStatus').on('input.editStatus', autoSetStatus);
 
-/* =====================================================
- * EVENT HANDLERS
- * ===================================================== */
-
-// Event handler untuk menambah item
-$('#btnAddEditItem').on('click', function() {
-    addItemToTable();
-});
-
-// Event handler untuk perubahan pada item
-$(document).on('input change', '.item-qty, .item-price', function() {
-    calculateRow($(this).closest('tr'));
-});
-
-// Event handler untuk perubahan produk
-$(document).on('change', '.item-product', function() {
-    const row = $(this).closest('tr');
-    const selectedOption = $(this).find('option:selected');
-    const price = parseFloat(selectedOption.data('price')) || 0;
-
-    // Set harga otomatis ketika produk dipilih
-    if (price > 0) {
-        row.find('.item-price').val(price);
-    }
-
-    // row.data('product-id', $(this).val());
-
-    calculateRow(row);
-});
-
-// Event handler untuk menghapus item
-// $(document).on('click', '.btn-remove-item', function() {
-//     $(this).closest('tr').remove();
-//     calculateTotals();
-// });
-
-$(document).on('click', '.btn-remove-item', function() {
-    $(this).closest('tr').remove();
-    calculateTotals();
-});
-
-
-// Event handler untuk perubahan discount, PPN, dan pembayaran
-$(document).on('input change', '.discount-input, .ppn-input, .pay-input', function() {
-    calculateTotals();
-});
-
-// Event handler untuk submit update transaksi
-$('#btnUpdateTransaction').on('click', function() {
-    const items = getItemsData();
+// SUBMIT UPDATE TRANSACTION
+$('#btnUpdateTransaction').off('click.editTrans').on('click.editTrans', function () {
+    let items = buildEditItemsPayload();
 
     if (items.length === 0) {
         alert('Minimal 1 item harus diisi');
         return;
     }
 
-    const transactionId = $('#editTransactionId').val();
-    const subTotal = parseFloat($('#subTotal').text().replace(/[^\d]/g, '')) || 0;
-    const total = parseFloat($('#afterPpn').text().replace(/[^\d]/g, '')) || 0;
-    const payAmount = parseFloat($('#payAmount').val()) || 0;
+    let total = parseCurrency($('#afterPpn').text());
+    let pay = parseFloat($('#payAmount').val()) || 0;
 
-    // Validasi pembayaran untuk status lunas
-    if ($('#editStatus').val() === 'paid' && payAmount < total) {
-        if (!confirm('Pembayaran kurang dari total. Tetap lanjutkan dengan status Lunas?')) {
-            return;
-        }
+    if (pay <= 0 && $('#editStatus').val() === 'paid') {
+        alert('Pembayaran belum diisi untuk status Lunas');
+        return;
     }
 
-    // Prepare data untuk submit
-    const data = {
+    submitEditTransaction(items);
+});
+
+function buildEditItemsPayload() {
+    let items = [];
+
+    $('#editItemsTable tbody tr').each(function () {
+        let productId = $(this).find('.product-select').val();
+        let qty = parseInt($(this).find('.qty').val()) || 0;
+        let price = parseFloat($(this).find('.price').val()) || 0;
+
+        if (productId && qty > 0 && price > 0) {
+            items.push({
+                product_id: productId,
+                qty: qty,
+                price: price
+            });
+        }
+    });
+
+    console.log('Items payload:', items);
+    return items;
+}
+
+function submitEditTransaction(items) {
+    let id = $('#editTransactionId').val();
+
+    let payload = {
         customer_id: $('#editCustomer').val() || null,
         items: items,
-        sub_total: subTotal,
+        sub_total: parseCurrency($('#subTotal').text()),
         discount_value: $('#discountValue').val(),
         discount_type: $('#discountType').val(),
-        total_after_discount: parseFloat($('#afterDiscount').text().replace(/[^\d]/g, '')) || 0,
+        total_after_discount: parseCurrency($('#afterDiscount').text()),
         ppn: $('#ppnValue').val(),
-        total_after_ppn: total,
-        pay_amount: payAmount,
-        change_amount: parseFloat($('#changeAmount').text().replace(/[^\d]/g, '')) || 0,
+        total_after_ppn: parseCurrency($('#afterPpn').text()),
+        pay_amount: $('#payAmount').val(),
+        change_amount: parseCurrency($('#changeAmount').text()),
         status: $('#editStatus').val(),
         payment_method: $('#paymentMethod').val(),
         note: $('#orderNote').val(),
-        _token: '{{ csrf_token() }}',
-        _method: 'PUT'
+        _token: '{{ csrf_token() }}'
     };
 
-    console.log('Updating transaction:', data);
+    console.log('Submitting payload:', payload);
 
-    // Submit update
     $.ajax({
-        url: `/transactions/${transactionId}`,
-        method: 'POST', // Menggunakan POST karena ada _method: 'PUT'
-        data: data,
-        success: function(response) {
-            if (response.success) {
-                alert('Transaksi berhasil diperbarui');
-                editModal.hide();
-                loadTransactions(); // Reload tabel transaksi
-            } else {
-                alert('Gagal update transaksi: ' + (response.message || 'Unknown error'));
-            }
+        url: `/transactions/${id}`,
+        type: 'PUT',
+        data: payload,
+        success: function(res) {
+            console.log('Update success:', res);
+            editModal.hide();
+            alert('Transaksi berhasil diperbarui');
+            loadTransactions();
         },
-        error: function(xhr) {
-            console.error('Error updating transaction:', xhr.responseText);
-            const errorMsg = xhr.responseJSON?.message || 'Terjadi kesalahan saat update transaksi';
-            alert('Gagal update transaksi: ' + errorMsg);
+        error: function(err) {
+            console.error('Update error:', err);
+            alert('Gagal update transaksi: ' + (err.responseJSON?.message || 'Unknown error'));
         }
     });
-});
+}
 
-// Event handler untuk membuka modal edit dari tabel
-$('#transactionTable').on('click', '.btn-edit', function() {
-    const id = $(this).data('id');
-    openEditModal(id);
-
-    console.log('Edit button clicked for transaction ID:', id);
-});
+function parseCurrency(text) {
+    return parseFloat(text.replace(/[^\d]/g, '')) || 0;
+}
 </script>
 
 

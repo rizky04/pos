@@ -609,70 +609,19 @@ $("#transactionTable").on("click", "[data-action='print']", function () {
 /* =====================================================
  * EDIT TRANSAKSI - FUNGSI UTAMA
  * ===================================================== */
-/* =====================================================
- * EDIT TRANSAKSI - FUNGSI UTAMA
- * ===================================================== */
 
 let editModal;
 let editTransactionData = {};
-let products = []; // Kosongkan array, akan diisi via AJAX
-
-// Fungsi untuk load produk dari API
-function loadProducts(callback = null) {
-    $.ajax({
-        url: '{{ route("select.product") }}', // Pastikan route ini ada
-        method: 'GET',
-        success: function(data) {
-            products = data;
-            console.log('Products loaded successfully:', products.length);
-            if (callback && typeof callback === 'function') {
-                callback();
-            }
-        },
-        error: function(err) {
-            console.error('Failed to load products:', err);
-            // Fallback: coba load dari variabel Blade jika ada
-            try {
-                products = @json($products ?? []);
-                console.log('Using fallback products:', products.length);
-            } catch (e) {
-                console.error('Fallback also failed:', e);
-                products = [];
-            }
-        }
-    });
-}
-
-// Fungsi untuk membuat options produk
-function buildProductOptions(selectedId = null) {
-    let options = '<option value="">Pilih Produk</option>';
-
-    if (products && products.length > 0) {
-        products.forEach(product => {
-            const selected = selectedId == product.id ? 'selected' : '';
-            const price = product.harga_jual || product.harga_modal || 0;
-            options += `<option value="${product.id}" data-price="${price}" ${selected}>${product.nama}</option>`;
-        });
-    } else {
-        options = '<option value="">Produk tidak tersedia</option>';
-    }
-
-    return options;
-}
+let products = @json($products ?? []);
 
 $(function () {
     editModal = new bootstrap.Modal(document.getElementById('editTransactionModal'));
-
-    // Pre-load produk saat halaman siap
-    loadProducts();
 });
 
 // Fungsi untuk membuka modal edit
 function openEditModal(transactionId) {
-    // Tampilkan loading indicator
-    $('#editItemsTable tbody').html('<tr><td colspan="5" class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Memuat...</td></tr>');
-
     // Reset data
+    $('#editItemsTable tbody').empty();
     editTransactionData = {};
 
     // Reset form
@@ -693,81 +642,92 @@ function openEditModal(transactionId) {
     // Tampilkan modal
     editModal.show();
 
-    // Pastikan produk sudah diload sebelum melanjutkan
-    if (products.length === 0) {
-        loadProducts(function() {
-            loadTransactionDetails(transactionId);
-        });
-    } else {
-        loadTransactionDetails(transactionId);
-    }
-}
-
-// Fungsi untuk load detail transaksi setelah produk tersedia
-function loadTransactionDetails(transactionId) {
+    // Load data transaksi
     $.ajax({
         url: `/transactions/${transactionId}`,
         method: 'GET',
         success: function(res) {
+            console.log('Transaction data loaded:', res);
 
-            console.log('Transaction details loaded:', res);
-             $('#editTransactionId').val(res.id);
-
-            // 🔥 1️⃣ WAJIB: BERSIHKAN TOTAL
-            $('#editItemsTable tbody').html('');
-            // RESET TOTAL (INI YANG SELAMA INI NYANTOL)
-            $('#sub_total').val(0);
-            $('#discount_value').val(0);
-            $('#total_after_discount').val(0);
-            $('#ppn').val(0);
-            $('#total_after_ppn').val(0);
-            $('#pay_amount').val(0);
-            $('#change_amount').val(0);
+            // Simpan data untuk referensi
+            editTransactionData = res;
 
             // Isi form
-            // $('#editTransactionId').val(res.id);
+            $('#editTransactionId').val(res.id);
             $('#editKode').val(res.kode);
             $('#editCustomer').val(res.customer_id || '');
             $('#editStatus').val(res.status);
-            $('#paymentMethod').val(res.payment_method);
-            $('#orderNote').val(res.note);
+            $('#paymentMethod').val(res.payment_method || 'cash');
+            $('#orderNote').val(res.note || '');
 
             // Isi discount dan PPN
             $('#discountValue').val(res.discount_value || 0);
-            $('#discountType').val(res.discount_type);
+            $('#discountType').val(res.discount_type || 'rp');
             $('#ppnValue').val(res.ppn || 0);
             $('#payAmount').val(res.pay_amount || 0);
 
+            // Tambahkan item ke tabel
+            if (res.items && res.items.length > 0) {
+                res.items.forEach(item => {
+                    addItemToTable(item);
+                });
+            }
 
-            // isi ulang dari database
-            res.items.forEach(item => {
-                addItemToTable(item);
-            });
-
+            // Hitung ulang total
             calculateTotals();
+        },
+        error: function(err) {
+            console.error('Error loading transaction:', err);
+            alert('Gagal memuat data transaksi');
+            editModal.hide();
         }
     });
 }
 
-
+// Fungsi untuk menambahkan item ke tabel
 function addItemToTable(item = null) {
+    const rowId = 'item-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 
-    const productOptions = buildProductOptions(item ? item.product_id : null);
+    // Jika item sudah ada, skip
+    if (item && item.product_id) {
+        let exists = false;
+        $('#editItemsTable tbody tr').each(function() {
+            if ($(this).data('product-id') == item.product_id) {
+                exists = true;
+                // Update qty jika item sudah ada
+                const qtyInput = $(this).find('.item-qty');
+                const newQty = parseInt(qtyInput.val()) + parseInt(item.qty);
+                qtyInput.val(newQty);
+                calculateRow($(this));
+                return false;
+            }
+        });
+        if (exists) return;
+    }
 
+    // Buat options produk
+    let productOptions = '<option value="">Pilih Produk</option>';
+    @if(isset($products) && is_array($products))
+        @foreach($products as $p)
+            productOptions += `<option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}">{{ $p->nama }}</option>`;
+        @endforeach
+    @endif
+
+    // Buat row baru
     const row = `
-    <tr>
+    <tr data-row-id="${rowId}" data-product-id="${item ? item.product_id : ''}">
         <td>
-            <select class="form-select form-select-sm item-product">
+            <select class="form-select form-select-sm item-product" required>
                 ${productOptions}
             </select>
         </td>
         <td>
             <input type="number" class="form-control form-control-sm item-qty"
-                   min="1" value="${item ? item.qty : 1}">
+                   min="1" value="${item ? item.qty : 1}" step="1">
         </td>
         <td>
             <input type="number" class="form-control form-control-sm item-price"
-                   min="0" value="${item ? item.price : 0}">
+                   min="0" value="${item ? item.price : 0}" step="100">
         </td>
         <td class="item-subtotal text-end fw-bold">Rp 0</td>
         <td>
@@ -775,16 +735,22 @@ function addItemToTable(item = null) {
                 <i class="bi bi-trash"></i>
             </button>
         </td>
-    </tr>
-    `;
+    </tr>`;
 
     $('#editItemsTable tbody').append(row);
 
-    const lastRow = $('#editItemsTable tbody tr:last');
-    calculateRow(lastRow);
+    const rowElement = $(`[data-row-id="${rowId}"]`);
+
+    // Jika ada data item, isi nilai-nilainya
+    if (item) {
+        rowElement.find('.item-product').val(item.product_id);
+        rowElement.find('.item-price').val(item.price);
+        rowElement.data('product-id', item.product_id);
+    }
+
+    // Hitung subtotal untuk row ini
+    calculateRow(rowElement);
 }
-
-
 
 // Fungsi untuk menghitung subtotal per row
 function calculateRow(row) {
@@ -800,42 +766,14 @@ function calculateRow(row) {
 
 // Fungsi untuk menghitung total keseluruhan
 function calculateTotals() {
-//     let subTotal = 0;
-//        $('#editItemsTable tbody tr').each(function () {
-//         let rowSubtotal = parseFloat(
-//             $(this).find('.item-subtotal').text().replace(/[^0-9.-]+/g, '')
-//         ) || 0;
+    let subTotal = 0;
 
-//         subTotal += rowSubtotal;
-
-//         console.log(rowSubtotal);
-// console.log(subTotal);
-//     });
-
-
-//     $('#sub_total').val(subTotal);
-
-
-let subTotal = 0;
-
-$('#editItemsTable tbody tr').each(function () {
-    let rowSubtotal = parseFloat(
-        $(this)
-            .find('.item-subtotal')
-            .text()
-            .replace(/[^0-9,]/g, '') // sisakan angka & koma
-            .replace(/\./g, '')      // hapus pemisah ribuan
-            .replace(',', '.')       // jika pakai koma desimal
-    ) || 0;
-
-    subTotal += rowSubtotal;
-
-    console.log(rowSubtotal);
-    console.log(subTotal);
-});
-
-$('#sub_total').val(subTotal);
-
+    // Hitung subtotal dari semua item
+    $('#editItemsTable tbody tr').each(function() {
+        const qty = parseFloat($(this).find('.item-qty').val()) || 0;
+        const price = parseFloat($(this).find('.item-price').val()) || 0;
+        subTotal += qty * price;
+    });
 
     // Hitung discount
     const discountValue = parseFloat($('#discountValue').val()) || 0;
@@ -848,7 +786,7 @@ $('#sub_total').val(subTotal);
         discountAmount = discountValue;
     }
 
-    const afterDiscount = Math.max(0, subTotal - discountAmount);
+    const afterDiscount = subTotal - discountAmount;
 
     // Hitung PPN
     const ppnPercent = parseFloat($('#ppnValue').val()) || 0;
@@ -895,24 +833,22 @@ function formatRupiah(number) {
 function getItemsData() {
     const items = [];
 
-    $('#editItemsTable tbody tr:visible').each(function() {
-
+    $('#editItemsTable tbody tr').each(function() {
         const productId = $(this).find('.item-product').val();
-        const qty = parseInt($(this).find('.item-qty').val());
-        const price = parseInt($(this).find('.item-price').val());
+        const qty = parseFloat($(this).find('.item-qty').val()) || 0;
+        const price = parseFloat($(this).find('.item-price').val()) || 0;
 
-        if (!productId || qty <= 0 || price <= 0) return;
-
-        items.push({
-            product_id: productId,
-            qty: qty,
-            price: price
-        });
+        if (productId && qty > 0 && price > 0) {
+            items.push({
+                product_id: productId,
+                qty: qty,
+                price: price
+            });
+        }
     });
 
     return items;
 }
-
 
 /* =====================================================
  * EVENT HANDLERS
@@ -932,29 +868,19 @@ $(document).on('input change', '.item-qty, .item-price', function() {
 $(document).on('change', '.item-product', function() {
     const row = $(this).closest('tr');
     const selectedOption = $(this).find('option:selected');
-    const price = parseFloat(selectedOption.data('price')) || 0;
+    const price = selectedOption.data('price') || 0;
 
-    // Set harga otomatis ketika produk dipilih
-    if (price > 0) {
-        row.find('.item-price').val(price);
-    }
-
-    // row.data('product-id', $(this).val());
+    row.find('.item-price').val(price);
+    row.data('product-id', $(this).val());
 
     calculateRow(row);
 });
 
 // Event handler untuk menghapus item
-// $(document).on('click', '.btn-remove-item', function() {
-//     $(this).closest('tr').remove();
-//     calculateTotals();
-// });
-
 $(document).on('click', '.btn-remove-item', function() {
     $(this).closest('tr').remove();
     calculateTotals();
 });
-
 
 // Event handler untuk perubahan discount, PPN, dan pembayaran
 $(document).on('input change', '.discount-input, .ppn-input, .pay-input', function() {
@@ -1029,8 +955,6 @@ $('#btnUpdateTransaction').on('click', function() {
 $('#transactionTable').on('click', '.btn-edit', function() {
     const id = $(this).data('id');
     openEditModal(id);
-
-    console.log('Edit button clicked for transaction ID:', id);
 });
 </script>
 

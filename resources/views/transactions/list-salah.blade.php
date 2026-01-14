@@ -149,7 +149,7 @@
 
 <!-- MODAL EDIT TRANSAKSI -->
 <!-- MODAL EDIT TRANSAKSI -->
-<div class="modal fade" id="editTransactionModal" tabindex="-1">
+{{-- <div class="modal fade" id="editTransactionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -294,7 +294,87 @@
             </div>
         </div>
     </div>
+</div> --}}
+
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<div class="modal fade" id="editTransactionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Transaksi</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <table class="table table-bordered" id="editItemsTable">
+                    <thead>
+                        <tr>
+                            <th>Produk</th>
+                            <th width="120">Qty</th>
+                            <th width="150">Harga</th>
+                            <th width="150">Total</th>
+                            <th width="80">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <button class="btn btn-sm btn-primary" id="addItemEdit">Tambah Item</button>
+
+                <hr>
+
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <label>Subtotal</label>
+                        <input type="number" id="sub_total" class="form-control" readonly>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Diskon</label>
+                        <div class="input-group">
+                            <input type="number" id="discount_value" class="form-control" value="0">
+                            <select id="discount_type" class="form-select">
+                                <option value="nominal">Rp</option>
+                                <option value="percent">%</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>PPN (%)</label>
+                        <input type="number" id="ppn" class="form-control" value="0">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Grand Total</label>
+                        <input type="number" id="grand_total" class="form-control" readonly>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Bayar</label>
+                        <input type="number" id="pay_amount" class="form-control" value="0">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Kembalian</label>
+                        <input type="number" id="change_amount" class="form-control" readonly>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-success" id="saveEditTransaction">Simpan</button>
+            </div>
+
+        </div>
+    </div>
 </div>
+
 
 <style>
 @media print {
@@ -316,6 +396,146 @@
 
 
 @push('scripts')
+
+<script>
+
+    $(document).on('click', '.btn-edit', function () {
+    const transactionId = $(this).data('id');
+    editTransaction(transactionId);
+});
+let editProducts = [];
+let editTransactionId = null;
+
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+/** OPEN EDIT */
+function editTransaction(id) {
+    editTransactionId = id;
+    $('#editItemsTable tbody').html('');
+
+    $.get(`/transaction/${id}/edit`, function(res) {
+        editProducts = res.products;
+
+        res.transaction.items.forEach(item => {
+            addEditRow(item);
+        });
+
+        $('#discount_value').val(res.transaction.discount_value);
+        $('#discount_type').val(res.transaction.discount_type);
+        $('#ppn').val(res.transaction.ppn);
+        $('#pay_amount').val(res.transaction.pay_amount);
+
+        calculateAll();
+        $('#editTransactionModal').modal('show');
+    });
+}
+
+/** ADD ROW */
+function addEditRow(item = null) {
+    let options = editProducts.map(p =>
+        `<option value="${p.id}" ${item && item.product_id === p.id ? 'selected' : ''}>${p.nama}</option>`
+    ).join('');
+
+    $('#editItemsTable tbody').append(`
+        <tr>
+            <td><select class="form-control product_id">${options}</select></td>
+            <td><input type="number" class="form-control qty" value="${item ? item.qty : 1}"></td>
+            <td><input type="number" class="form-control price" value="${item ? item.price : 0}"></td>
+            <td class="row-total">0</td>
+            <td><button class="btn btn-danger btn-sm removeRow">X</button></td>
+        </tr>
+    `);
+}
+
+/** AUTO HITUNG */
+function calculateAll() {
+    let subTotal = 0;
+
+    $('#editItemsTable tbody tr').each(function () {
+        let qty = parseFloat($(this).find('.qty').val()) || 0;
+        let price = parseFloat($(this).find('.price').val()) || 0;
+        let total = qty * price;
+
+        $(this).find('.row-total').text(total);
+        subTotal += total;
+    });
+
+    $('#sub_total').val(subTotal);
+
+    let discountValue = parseFloat($('#discount_value').val()) || 0;
+    let discountType = $('#discount_type').val();
+    let discountAmount = discountType === 'percent'
+        ? subTotal * (discountValue / 100)
+        : discountValue;
+
+    let afterDiscount = Math.max(subTotal - discountAmount, 0);
+
+    let ppnPercent = parseFloat($('#ppn').val()) || 0;
+    let ppnAmount = afterDiscount * (ppnPercent / 100);
+
+    let grandTotal = afterDiscount + ppnAmount;
+    $('#grand_total').val(grandTotal);
+
+    let pay = parseFloat($('#pay_amount').val()) || 0;
+    $('#change_amount').val(Math.max(pay - grandTotal, 0));
+}
+
+/** EVENTS */
+$(document).on('input change',
+    '.qty, .price, #discount_value, #discount_type, #ppn, #pay_amount',
+    calculateAll
+);
+
+$(document).on('click', '.removeRow', function () {
+    $(this).closest('tr').remove();
+    calculateAll();
+});
+
+$('#addItemEdit').click(function () {
+    addEditRow();
+});
+
+/** SAVE */
+$('#saveEditTransaction').click(function () {
+    let items = [];
+
+    $('#editItemsTable tbody tr').each(function () {
+        items.push({
+            product_id: $(this).find('.product_id').val(),
+            qty: $(this).find('.qty').val(),
+            price: $(this).find('.price').val(),
+        });
+    });
+
+    $.ajax({
+        url: `/transaction/${editTransactionId}`,
+        type: 'PUT',
+        data: {
+            items: items,
+            sub_total: $('#sub_total').val(),
+            discount_value: $('#discount_value').val(),
+            discount_type: $('#discount_type').val(),
+            total_after_discount: $('#grand_total').val(),
+            ppn: $('#ppn').val(),
+            total_after_ppn: $('#grand_total').val(),
+            pay_amount: $('#pay_amount').val(),
+            change_amount: $('#change_amount').val(),
+        },
+        success: function (res) {
+            alert(res.message);
+            location.reload();
+        }
+    });
+});
+</script>
+
+
+
+
 <script>
     function printMini() {
     window.print();
@@ -709,65 +929,91 @@ function loadTransactionDetails(transactionId) {
         url: `/transactions/${transactionId}`,
         method: 'GET',
         success: function(res) {
+            console.log('Transaction data loaded:', res);
 
-            console.log('Transaction details loaded:', res);
-             $('#editTransactionId').val(res.id);
-
-            // 🔥 1️⃣ WAJIB: BERSIHKAN TOTAL
-            $('#editItemsTable tbody').html('');
-            // RESET TOTAL (INI YANG SELAMA INI NYANTOL)
-            $('#sub_total').val(0);
-            $('#discount_value').val(0);
-            $('#total_after_discount').val(0);
-            $('#ppn').val(0);
-            $('#total_after_ppn').val(0);
-            $('#pay_amount').val(0);
-            $('#change_amount').val(0);
+            // Simpan data untuk referensi
+            editTransactionData = res;
 
             // Isi form
-            // $('#editTransactionId').val(res.id);
+            $('#editTransactionId').val(res.id);
             $('#editKode').val(res.kode);
             $('#editCustomer').val(res.customer_id || '');
             $('#editStatus').val(res.status);
-            $('#paymentMethod').val(res.payment_method);
-            $('#orderNote').val(res.note);
+            $('#paymentMethod').val(res.payment_method || 'cash');
+            $('#orderNote').val(res.note || '');
 
             // Isi discount dan PPN
             $('#discountValue').val(res.discount_value || 0);
-            $('#discountType').val(res.discount_type);
+            $('#discountType').val(res.discount_type || 'rp');
             $('#ppnValue').val(res.ppn || 0);
             $('#payAmount').val(res.pay_amount || 0);
 
+            // Clear table
+            $('#editItemsTable tbody').empty();
 
-            // isi ulang dari database
-            res.items.forEach(item => {
-                addItemToTable(item);
-            });
+            // Tambahkan item ke tabel
+            if (res.items && res.items.length > 0) {
+                res.items.forEach(item => {
+                    addItemToTable(item);
+                });
+            } else {
+                // Tambahkan satu baris kosong jika tidak ada item
+                addItemToTable();
+            }
 
+            // Hitung ulang total
             calculateTotals();
+        },
+        error: function(err) {
+            console.error('Error loading transaction:', err);
+            alert('Gagal memuat data transaksi');
+            editModal.hide();
         }
     });
 }
 
-
+// Fungsi untuk menambahkan item ke tabel
 function addItemToTable(item = null) {
+    const rowId = 'item-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 
+    // Jika item sudah ada, update qty
+    if (item && item.product_id) {
+        let existingRow = null;
+        $('#editItemsTable tbody tr').each(function() {
+            if ($(this).data('product-id') == item.product_id) {
+                existingRow = $(this);
+                return false; // Break loop
+            }
+        });
+
+        if (existingRow) {
+            // Update qty jika item sudah ada
+            const qtyInput = existingRow.find('.item-qty');
+            const newQty = parseInt(qtyInput.val()) + parseInt(item.qty);
+            qtyInput.val(newQty);
+            calculateRow(existingRow);
+            return;
+        }
+    }
+
+    // Buat options produk
     const productOptions = buildProductOptions(item ? item.product_id : null);
 
+    // Buat row baru
     const row = `
-    <tr>
+    <tr data-row-id="${rowId}" data-product-id="${item ? item.product_id : ''}">
         <td>
-            <select class="form-select form-select-sm item-product">
+            <select class="form-select form-select-sm item-product" required>
                 ${productOptions}
             </select>
         </td>
         <td>
             <input type="number" class="form-control form-control-sm item-qty"
-                   min="1" value="${item ? item.qty : 1}">
+                   min="1" value="${item ? item.qty : 1}" step="1">
         </td>
         <td>
             <input type="number" class="form-control form-control-sm item-price"
-                   min="0" value="${item ? item.price : 0}">
+                   min="0" value="${item ? item.price : 0}" step="100">
         </td>
         <td class="item-subtotal text-end fw-bold">Rp 0</td>
         <td>
@@ -775,16 +1021,29 @@ function addItemToTable(item = null) {
                 <i class="bi bi-trash"></i>
             </button>
         </td>
-    </tr>
-    `;
+    </tr>`;
 
     $('#editItemsTable tbody').append(row);
 
-    const lastRow = $('#editItemsTable tbody tr:last');
-    calculateRow(lastRow);
+    const rowElement = $(`[data-row-id="${rowId}"]`);
+
+    // Jika ada data item, set produk terpilih
+    if (item && item.product_id) {
+        rowElement.data('product-id', item.product_id);
+
+        // Set harga otomatis berdasarkan produk yang dipilih
+        const selectedProduct = products.find(p => p.id == item.product_id);
+        if (selectedProduct) {
+            const price = item.price || selectedProduct.harga_jual || selectedProduct.harga_modal || 0;
+            rowElement.find('.item-price').val(price);
+        }
+    }
+
+    // Hitung subtotal untuk row ini
+    setTimeout(() => {
+        calculateRow(rowElement);
+    }, 100);
 }
-
-
 
 // Fungsi untuk menghitung subtotal per row
 function calculateRow(row) {
@@ -800,42 +1059,14 @@ function calculateRow(row) {
 
 // Fungsi untuk menghitung total keseluruhan
 function calculateTotals() {
-//     let subTotal = 0;
-//        $('#editItemsTable tbody tr').each(function () {
-//         let rowSubtotal = parseFloat(
-//             $(this).find('.item-subtotal').text().replace(/[^0-9.-]+/g, '')
-//         ) || 0;
+    let subTotal = 0;
 
-//         subTotal += rowSubtotal;
-
-//         console.log(rowSubtotal);
-// console.log(subTotal);
-//     });
-
-
-//     $('#sub_total').val(subTotal);
-
-
-let subTotal = 0;
-
-$('#editItemsTable tbody tr').each(function () {
-    let rowSubtotal = parseFloat(
-        $(this)
-            .find('.item-subtotal')
-            .text()
-            .replace(/[^0-9,]/g, '') // sisakan angka & koma
-            .replace(/\./g, '')      // hapus pemisah ribuan
-            .replace(',', '.')       // jika pakai koma desimal
-    ) || 0;
-
-    subTotal += rowSubtotal;
-
-    console.log(rowSubtotal);
-    console.log(subTotal);
-});
-
-$('#sub_total').val(subTotal);
-
+    // Hitung subtotal dari semua item
+    $('#editItemsTable tbody tr').each(function() {
+        const qty = parseFloat($(this).find('.item-qty').val()) || 0;
+        const price = parseFloat($(this).find('.item-price').val()) || 0;
+        subTotal += qty * price;
+    });
 
     // Hitung discount
     const discountValue = parseFloat($('#discountValue').val()) || 0;
@@ -895,24 +1126,22 @@ function formatRupiah(number) {
 function getItemsData() {
     const items = [];
 
-    $('#editItemsTable tbody tr:visible').each(function() {
-
+    $('#editItemsTable tbody tr').each(function() {
         const productId = $(this).find('.item-product').val();
-        const qty = parseInt($(this).find('.item-qty').val());
-        const price = parseInt($(this).find('.item-price').val());
+        const qty = parseFloat($(this).find('.item-qty').val()) || 0;
+        const price = parseFloat($(this).find('.item-price').val()) || 0;
 
-        if (!productId || qty <= 0 || price <= 0) return;
-
-        items.push({
-            product_id: productId,
-            qty: qty,
-            price: price
-        });
+        if (productId && qty > 0 && price > 0) {
+            items.push({
+                product_id: productId,
+                qty: qty,
+                price: price
+            });
+        }
     });
 
     return items;
 }
-
 
 /* =====================================================
  * EVENT HANDLERS
@@ -939,22 +1168,16 @@ $(document).on('change', '.item-product', function() {
         row.find('.item-price').val(price);
     }
 
-    // row.data('product-id', $(this).val());
+    row.data('product-id', $(this).val());
 
     calculateRow(row);
 });
 
 // Event handler untuk menghapus item
-// $(document).on('click', '.btn-remove-item', function() {
-//     $(this).closest('tr').remove();
-//     calculateTotals();
-// });
-
 $(document).on('click', '.btn-remove-item', function() {
     $(this).closest('tr').remove();
     calculateTotals();
 });
-
 
 // Event handler untuk perubahan discount, PPN, dan pembayaran
 $(document).on('input change', '.discount-input, .ppn-input, .pay-input', function() {
@@ -1026,12 +1249,10 @@ $('#btnUpdateTransaction').on('click', function() {
 });
 
 // Event handler untuk membuka modal edit dari tabel
-$('#transactionTable').on('click', '.btn-edit', function() {
-    const id = $(this).data('id');
-    openEditModal(id);
-
-    console.log('Edit button clicked for transaction ID:', id);
-});
+// $('#transactionTable').on('click', '.btn-edit', function() {
+//     const id = $(this).data('id');
+//     openEditModal(id);
+// });
 </script>
 
 

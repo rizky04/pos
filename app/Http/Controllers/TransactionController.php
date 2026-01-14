@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Transaction;
 use App\Models\Product;
 use App\Models\TransactionItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
  use Illuminate\Support\Facades\DB;
+ use Illuminate\Support\Facades\Log;
 class TransactionController extends Controller
 {
     /**
@@ -29,12 +31,24 @@ class TransactionController extends Controller
         return view('transactions.pos', compact('categories', 'products'));
     }
 
-    public function list(){
-        $products = Product::with('category')
-    ->orderBy('nama')
-    ->get(); // ❌ HAPUS active()
+    // public function list(){
+    //     $products = Product::with('category')
+    // ->orderBy('nama')
+    // ->get(); // ❌ HAPUS active()
 
-        return view('transactions.list', compact('products'));
+    //     return view('transactions.list', compact('products'));
+    // }
+
+     public function list(){
+        $products = Product::with('category')
+            ->orderBy('nama')
+            ->get();
+
+        $customers = Customer::where('tenant_id', Auth::user()->tenant_id)
+            ->orderBy('nama')
+            ->get();
+
+        return view('transactions.list', compact('products', 'customers'));
     }
 
     /**
@@ -50,6 +64,8 @@ class TransactionController extends Controller
      */
    public function store(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
             'customer_id' => 'nullable',
             'items' => 'required|array',
@@ -88,9 +104,9 @@ class TransactionController extends Controller
             'pay_amount' => $request->pay_amount,
             'change_amount' => $request->change_amount,
             'status' => $request->status,
-            'date_transaction' => now(),
             'payment_method' => $request->payment_method,
-            'note' => $request->note
+            'note' => $request->note,
+            'date_transaction' => now(),
         ]);
 
         // SIMPAN ITEM
@@ -121,46 +137,6 @@ class TransactionController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-//    public function getData(Request $request)
-//     {
-//         $query = Transaction::with(['items.product']);
-
-//         // --- FILTER SEARCH ---
-//         if ($request->search != '') {
-//             $search = $request->search;
-
-//             $query->where(function ($q) use ($search) {
-//                 $q->where('kode', 'like', "%$search%")
-//                   ->orWhere('status', 'like', "%$search%");
-//             });
-//         }
-
-//         // --- FILTER STATUS ---
-//         if ($request->filled('status') && $request->status !== 'all') {
-//             $query->where('status', $request->status);
-//         }
-
-//         // --- FILTER RANGE TANGGAL ---
-//         if ($request->filled('date_from') && $request->filled('date_to')) {
-//             $query->whereBetween('created_at', [
-//                 $request->date_from . " 00:00:00",
-//                 $request->date_to . " 23:59:59"
-//             ]);
-//         }
-
-//         // --- ORDER ---
-//         $query->orderBy('created_at', 'desc');
-
-//         // --- PAGINATION ---
-//         $perPage = $request->get('per_page', 10);
-
-//         $transactions = $query->paginate($perPage);
-
-//         return response()->json($transactions);
-//     }
  public function getData(Request $request)
     {
         $query = Transaction::with('items', 'customer')
@@ -207,23 +183,75 @@ class TransactionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Transaction $transaction)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(UpdateTransactionRequest $request, Transaction $transaction)
+    // public function edit(Transaction $transaction)
     // {
     //     //
     // }
+        public function edit($id)
+    {
+        $transaction = Transaction::with(['items.product'])->findOrFail($id);
+
+        $products = Product::active()->get();
+
+        return response()->json([
+            'transaction' => $transaction,
+            'products' => $products
+        ]);
+    }
+    //  public function update(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'items' => 'required|array|min:1',
+    //         'items.*.product_id' => 'required|exists:products,id',
+    //         'items.*.qty' => 'required|numeric|min:1',
+    //         'items.*.price' => 'required|numeric|min:0',
+    //     ]);
+
+    //     DB::transaction(function () use ($request, $id) {
+
+    //         $transaction = Transaction::where('tenant_id', Auth::user()->tenant_id,)
+    //             ->findOrFail($id);
+
+    //         /** UPDATE HEADER */
+    //         $transaction->update([
+    //             'sub_total' => $request->sub_total,
+    //             'discount_value' => $request->discount_value,
+    //             'discount_type' => $request->discount_type,
+    //             'total_after_discount' => $request->total_after_discount,
+    //             'ppn' => $request->ppn,
+    //             'total_after_ppn' => $request->total_after_ppn,
+    //             'pay_amount' => $request->pay_amount,
+    //             'change_amount' => $request->change_amount,
+    //             'note' => $request->note,
+    //             'payment_method' => "cash",
+    //         ]);
+
+    //         /** HAPUS SEMUA ITEM LAMA (ANTI BUG) */
+    //         $transaction->items()->delete();
+
+    //         /** INSERT ITEM BARU */
+    //         foreach ($request->items as $item) {
+    //             $transaction->items()->create([
+    //                 'tenant_id' => Auth::user()->tenant_id,
+    //                 'product_id' => $item['product_id'],
+    //                 'qty' => $item['qty'],
+    //                 'price' => $item['price'],
+    //                 'purchase_price' => 0,
+    //                 'total' => $item['qty'] * $item['price'],
+    //             ]);
+    //         }
+    //     });
+
+    //     return response()->json([
+    //         'message' => 'Transaksi berhasil diperbarui'
+    //     ]);
+    // }
+
 
 
 public function update(Request $request, $id)
 {
-    // dd($request->all());
+
     $request->validate([
         'customer_id' => 'nullable',
         'items' => 'required|array',
@@ -242,6 +270,9 @@ public function update(Request $request, $id)
         'payment_method' => 'required',
         'note' => 'nullable',
     ]);
+
+    // dd($request->items);
+
 
     DB::beginTransaction();
 
@@ -268,6 +299,8 @@ public function update(Request $request, $id)
          * ==================================================
          */
         $transaction->items()->delete();
+
+
 
         /**
          * ==================================================
@@ -332,6 +365,8 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+
+
 
 
     /**

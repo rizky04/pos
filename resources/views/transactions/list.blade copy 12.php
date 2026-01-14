@@ -709,8 +709,6 @@ function loadTransactionDetails(transactionId) {
         url: `/transactions/${transactionId}`,
         method: 'GET',
         success: function(res) {
-
-            console.log('Transaction details loaded:', res);
              $('#editTransactionId').val(res.id);
 
             // 🔥 1️⃣ WAJIB: BERSIHKAN TOTAL
@@ -729,12 +727,12 @@ function loadTransactionDetails(transactionId) {
             $('#editKode').val(res.kode);
             $('#editCustomer').val(res.customer_id || '');
             $('#editStatus').val(res.status);
-            $('#paymentMethod').val(res.payment_method);
-            $('#orderNote').val(res.note);
+            $('#paymentMethod').val(res.payment_method || 'cash');
+            $('#orderNote').val(res.note || '');
 
             // Isi discount dan PPN
             $('#discountValue').val(res.discount_value || 0);
-            $('#discountType').val(res.discount_type);
+            $('#discountType').val(res.discount_type || 'rp');
             $('#ppnValue').val(res.ppn || 0);
             $('#payAmount').val(res.pay_amount || 0);
 
@@ -800,42 +798,42 @@ function calculateRow(row) {
 
 // Fungsi untuk menghitung total keseluruhan
 function calculateTotals() {
-//     let subTotal = 0;
-//        $('#editItemsTable tbody tr').each(function () {
-//         let rowSubtotal = parseFloat(
-//             $(this).find('.item-subtotal').text().replace(/[^0-9.-]+/g, '')
-//         ) || 0;
+    let subTotal = 0;
 
-//         subTotal += rowSubtotal;
+    // Hitung subtotal dari semua item
+    // $('#editItemsTable tbody tr').each(function() {
+    //     const qty = parseFloat($(this).find('.item-qty').val()) || 0;
+    //     const price = parseFloat($(this).find('.item-price').val()) || 0;
+    //     subTotal += qty * price;
+    // });
 
-//         console.log(rowSubtotal);
-// console.log(subTotal);
-//     });
+       $('#editItemsTable tbody tr').each(function () {
+        let rowSubtotal = parseFloat(
+            $(this).find('.item-subtotal').text().replace(/[^0-9.-]+/g, '')
+        ) || 0;
+
+        subTotal += rowSubtotal;
+
+        console.log(rowSubtotal);
+console.log(subTotal);
+    });
+
+// $('#editItemsTable tbody tr').each(function () {
+//     const qty = parseFloat(
+//         $(this).find('.item-qty').val()
+//     ) || 0;
+
+//     const price = parseFloat(
+//         $(this).find('.item-price').val().replace(/\./g, '')
+//     ) || 0;
+
+//     const rowSubtotal = qty * price;
+
+//     subTotal += rowSubtotal;
+// });
 
 
-//     $('#sub_total').val(subTotal);
-
-
-let subTotal = 0;
-
-$('#editItemsTable tbody tr').each(function () {
-    let rowSubtotal = parseFloat(
-        $(this)
-            .find('.item-subtotal')
-            .text()
-            .replace(/[^0-9,]/g, '') // sisakan angka & koma
-            .replace(/\./g, '')      // hapus pemisah ribuan
-            .replace(',', '.')       // jika pakai koma desimal
-    ) || 0;
-
-    subTotal += rowSubtotal;
-
-    console.log(rowSubtotal);
-    console.log(subTotal);
-});
-
-$('#sub_total').val(subTotal);
-
+    $('#sub_total').val(subTotal);
 
     // Hitung discount
     const discountValue = parseFloat($('#discountValue').val()) || 0;

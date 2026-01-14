@@ -158,22 +158,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-  $('#btnFilter').on('click', function () {
+    $('#btnFilter').on('click', function(){
     loadSales();
     loadKasir();
     loadLabaKotor();
     loadLabaBersih();
-
-    // HANYA load chart jika tab grafik aktif
-    if ($('.nav-link.active').data('tab') === 'grafik') {
-        setTimeout(() => {
-            loadChartSales();
-            loadChartKasir();
-            loadChartLaba();
-        }, 100);
-    }
+    loadChartSales();
+    loadChartKasir();
+    loadChartLaba();
 });
-
 
     function getDateFilter(){
     return {
@@ -186,33 +179,45 @@ function rupiah(v){
     return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(v);
 }
 
-
-$('.nav-link').on('click', function () {
-
-    const tab = $(this).data('tab'); // ⬅️ INI YANG HILANG
-
+/* ================= TAB SWITCH ================= */
+$('.nav-link').on('click', function(){
     $('.nav-link').removeClass('active');
     $(this).addClass('active');
 
     $('.tab-content').addClass('d-none');
-    $('#tab-' + tab).removeClass('d-none');
+    $('#tab-' + $(this).data('tab')).removeClass('d-none');
 
-    if (tab === 'kasir') loadKasir();
-    if (tab === 'kotor') loadLabaKotor();
-    if (tab === 'bersih') loadLabaBersih();
-
-    if (tab === 'grafik') {
-        setTimeout(() => {
-            loadChartSales();
-            loadChartKasir();
-            loadChartLaba();
-        }, 100);
+    if($(this).data('tab') === 'kasir') loadKasir();
+    if($(this).data('tab') === 'kotor') loadLabaKotor();
+    if($(this).data('tab') === 'bersih') loadLabaBersih();
+     if(this.dataset.tab === 'grafik'){
+        loadChartSales();
+        loadChartKasir();
+        loadChartLaba();
     }
 });
 
-
 /* ================= LIST ================= */
-
+// function loadSales(page = 1){
+//     $.get("{{ route('sales.data') }}",{page},res=>{
+//         let rows='',i=(res.current_page-1)*res.per_page;
+//         res.data.forEach(s=>{
+//             rows+=`
+//             <tr>
+//                 <td>${++i}</td>
+//                 <td>${s.sales_date}</td>
+//                 <td>${s.nomor_sales}</td>
+//                 <td>${s.client?.nama_client || '-'}</td>
+//                 <td>${s.status_bayar}</td>
+//                 <td>${rupiah(s.total)}</td>
+//                 <td>${rupiah(s.total_paid)}</td>
+//                 <td>${rupiah(s.due_amount)}</td>
+//                 <td><button class="btn btn-sm btn-info">👁</button></td>
+//             </tr>`;
+//         });
+//         $('#sales-table tbody').html(rows);
+//     });
+// }
 function loadSales(page = 1){
     $.get("{{ route('sales.data') }}", {
         page,
@@ -239,7 +244,20 @@ function loadSales(page = 1){
 
 
 /* ================= KASIR ================= */
-
+// function loadKasir(){
+//     $.get('/sales/report/kasir',res=>{
+//         let rows='';
+//         res.forEach(r=>{
+//             rows+=`
+//             <tr>
+//                 <td>${r.user?.name || '-'}</td>
+//                 <td>${r.total_transaksi}</td>
+//                 <td>${rupiah(r.total_penjualan)}</td>
+//             </tr>`;
+//         });
+//         $('#kasir-body').html(rows);
+//     });
+// }
 function loadKasir(){
     $.get('/sales/report/kasir', getDateFilter(), res=>{
         let rows='';
@@ -270,7 +288,15 @@ function loadLabaKotor(){
 
 
 /* ================= LABA BERSIH ================= */
-
+// function loadLabaBersih(){
+//     $.get('/sales/report/laba-bersih',res=>{
+//         $('#total-penjualan').text(rupiah(res.total_penjualan));
+//         $('#hpp').text(rupiah(res.hpp));
+//         $('#diskon').text(rupiah(res.diskon));
+//         $('#ppn').text(rupiah(res.ppn));
+//         $('#laba-bersih').text(rupiah(res.laba_bersih));
+//     });
+// }
 function loadLabaBersih(){
     $.get('/sales/report/laba-bersih', getDateFilter(), res=>{
         $('#total-penjualan').text(rupiah(res.total_penjualan));
@@ -284,75 +310,130 @@ function loadLabaBersih(){
 
 $(document).ready(()=>loadSales());
 
-const chartSalesEl = document.getElementById('chartSales');
-const chartKasirEl = document.getElementById('chartKasir');
-const chartLabaEl  = document.getElementById('chartLaba');
-
-
 let chartSales, chartKasir, chartLaba;
+/* ================= GRAFIK ================= */
+// function loadChartSales(){
+//     $.get("{{ route('sales.data') }}",res=>{
+//         let labels=[], totals=[];
+
+//         res.data.forEach(r=>{
+//             labels.push(r.sales_date);
+//             totals.push(r.total);
+//         });
+
+//         if(chartSales) chartSales.destroy();
+
+//         chartSales = new Chart(document.getElementById('chartSales'),{
+//             type:'line',
+//             data:{
+//                 labels:labels,
+//                 datasets:[{
+//                     label:'Total Penjualan',
+//                     data:totals,
+//                     fill:true,
+//                     tension:0.3
+//                 }]
+//             }
+//         });
+//     });
+// }
+
 function loadChartSales(){
-    $.get("{{ route('sales.data') }}", getDateFilter(), res => {
-
-        let labels = [];
-        let totals = [];
-
-        res.data.forEach(r => {
+    $.get("{{ route('sales.data') }}", getDateFilter(), res=>{
+        let labels=[], totals=[];
+        res.data.forEach(r=>{
             labels.push(r.sales_date);
             totals.push(r.total);
         });
 
         if(chartSales) chartSales.destroy();
 
-        chartSales = new Chart(chartSalesEl, {
-            type: 'line',
-            data: {
+        chartSales = new Chart(chartSalesEl,{
+            type:'line',
+            data:{
                 labels,
-                datasets: [{
-                    label: 'Total Penjualan',
-                    data: totals,
-                    tension: 0.4,
-                    fill: true
+                datasets:[{
+                    label:'Total Penjualan',
+                    data:totals,
+                    tension:0.3,
+                    fill:true
                 }]
             }
         });
     });
 }
+
+
+// function loadChartKasir(){
+//     $.get('/sales/report/kasir',res=>{
+//         let labels=[], totals=[];
+
+//         res.forEach(r=>{
+//             labels.push(r.user?.name || 'Kasir');
+//             totals.push(r.total_penjualan);
+//         });
+
+//         if(chartKasir) chartKasir.destroy();
+
+//         chartKasir = new Chart(document.getElementById('chartKasir'),{
+//             type:'bar',
+//             data:{
+//                 labels:labels,
+//                 datasets:[{
+//                     label:'Total Penjualan',
+//                     data:totals
+//                 }]
+//             }
+//         });
+//     });
+// }
+
 function loadChartKasir(){
-    $.get('/sales/report/kasir', getDateFilter(), res => {
-
-        let labels = [];
-        let totals = [];
-
-        res.forEach(r => {
+    $.get('/sales/report/kasir', getDateFilter(), res=>{
+        let labels=[], totals=[];
+        res.forEach(r=>{
             labels.push(r.user?.name || 'Kasir');
             totals.push(r.total_penjualan);
         });
 
         if(chartKasir) chartKasir.destroy();
 
-        chartKasir = new Chart(chartKasirEl, {
-            type: 'bar',
-            data: {
+        chartKasir = new Chart(chartKasirEl,{
+            type:'bar',
+            data:{
                 labels,
-                datasets: [{
-                    label: 'Total Penjualan',
-                    data: totals
-                }]
+                datasets:[{ label:'Total Penjualan', data:totals }]
             }
         });
     });
 }
-function loadChartLaba(){
-    $.get('/sales/report/laba-bersih', getDateFilter(), res => {
 
+
+// function loadChartLaba(){
+//     $.get('/sales/report/laba-bersih',res=>{
+//         if(chartLaba) chartLaba.destroy();
+
+//         chartLaba = new Chart(document.getElementById('chartLaba'),{
+//             type:'doughnut',
+//             data:{
+//                 labels:['Laba Kotor','Laba Bersih'],
+//                 datasets:[{
+//                     data:[res.laba_kotor, res.laba_bersih]
+//                 }]
+//             }
+//         });
+//     });
+// }
+function loadChartLaba(){
+    $.get('/sales/report/laba-bersih', getDateFilter(), res=>{
         if(chartLaba) chartLaba.destroy();
 
-        chartLaba = new Chart(chartLabaEl, {
-            type: 'doughnut',
-            data: {
-                labels: ['Laba Kotor', 'Laba Bersih'],
-                datasets: [{
-                    data: [res.laba_kotor, res.laba_bersih]
+        chartLaba = new Chart(chartLabaEl,{
+            type:'doughnut',
+            data:{
+                labels:['Laba Kotor','Laba Bersih'],
+                datasets:[{
+                    data:[res.laba_kotor, res.laba_bersih]
                 }]
             }
         });

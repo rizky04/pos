@@ -170,8 +170,15 @@ Route::get('/purchase-payments/{id}/print', [PurchasePaymentController::class, '
     Route::get('/list/transactions', [TransactionController::class, 'list'])->name('list.transactions');
     Route::put('/transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
 
+    // routes/web.php
+// Route::prefix('transaction')->group(function () {
+//     Route::get('{id}/edit', [TransactionController::class, 'edit']);
+//     Route::put('{id}', [TransactionController::class, 'update']);
+// });
 
-    Route::get('/select/products', [SelectController::class, 'product']);
+
+
+    Route::get('/select/products', [SelectController::class, 'product'])->name('select.product');
 Route::get('/select/suppliers', [SelectController::class, 'supplier']);
 
 
